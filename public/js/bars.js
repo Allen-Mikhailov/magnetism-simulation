@@ -298,6 +298,33 @@ class Column extends Container {
     }
 }
 
+class RawContent
+{
+    constructor(name)
+    {
+        this.name = name
+        this.elements = {}
+        this.resizers = {}
+    }
+
+    setEvents(events)
+    {
+        this.events = events
+    }
+
+    render()
+    {
+        const render_id = createKey()
+        const element = createElement("div", "raw-content-container")
+
+        const main_content_resizer = new ResizeObserver(entities => {
+            this.events.fire(this.name+"_resize")
+        })
+
+        main_content_resizer.observe(element)
+    }
+}
+
 class Bars
 {
     constructor(root)
@@ -306,33 +333,15 @@ class Bars
 
         this.items = []
 
-        this.headbar = new Bar("headbar");
-        this.toolbar = new Bar("toolbar")
-
-        this.main_content = createElement("div", "main-content-container")
-
-        const main_content_resizer = new ResizeObserver(entities => {
-            this.events.fire("main-content-resize")
-        })
-
-        main_content_resizer.observe(this.main_content)
-
         this.events = new Events();
     }
 
     render()
     {
-        const headbar_element = this.headbar.render()
-        this.root.appendChild(headbar_element);
-
-        this.root.appendChild(CreateHorizontalBar())
-
-        const toolbar_element = this.toolbar.render()
-        this.root.appendChild(toolbar_element);
-
-        this.root.appendChild(CreateHorizontalBar())
-
-        this.root.appendChild(this.main_content)
+        this.items.map((item) => {
+            const element = item.render()
+            this.root.appendChild(element)
+        })
     }
 
     setEvents(events)
