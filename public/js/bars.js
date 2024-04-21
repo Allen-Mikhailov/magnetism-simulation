@@ -303,8 +303,8 @@ class RawContent
     constructor(name)
     {
         this.name = name
-        this.elements = {}
-        this.resizers = {}
+        this.element = null
+        this.resizer = null
     }
 
     setEvents(events)
@@ -314,14 +314,25 @@ class RawContent
 
     render()
     {
-        const render_id = createKey()
-        const element = createElement("div", "raw-content-container")
+        if (this.element)
+        {
+            console.error("RawContent Rendered Twice")
+            return
+        }
 
-        const main_content_resizer = new ResizeObserver(entities => {
-            this.events.fire(this.name+"_resize")
+        const element = createElement("div", null, "raw-content-container")
+
+        const content_resizer = new ResizeObserver(entities => {
+            if (this.events)
+                this.events.fire(this.name+"_resize")
         })
 
-        main_content_resizer.observe(element)
+        content_resizer.observe(element)
+
+        this.element = element
+        this.resizer = content_resizer
+
+        return element
     }
 }
 
@@ -334,6 +345,11 @@ class Bars
         this.items = []
 
         this.events = new Events();
+    }
+
+    addItem(item)
+    {
+        this.items.push(item)
     }
 
     render()
@@ -355,6 +371,8 @@ export {
     
     Events,
     createKey, 
+
+    RawContent,
 
     Container,
     Bar,
