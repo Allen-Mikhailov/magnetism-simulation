@@ -4,10 +4,11 @@ use vector3::Vector3;
 use wasm_bindgen::prelude::*;
 
 use std::vec;
-use std::f32::consts::PI;
 use js_sys::Math::min;
 use js_sys::Object;
 use js_sys::{Array};
+
+const PI: f64 = std::f64::consts::PI;
 
 use rand::prelude::*;
 use rand_chacha::ChaCha8Rng;
@@ -48,19 +49,60 @@ impl RecordPointMatrix {
 }
 
 #[wasm_bindgen]
-pub struct NoPointCube
+pub struct RecordPointSphere
 {
     pos: Vector3,
     size: Vector3,
+    rings: u64,
+    point_scale: u64,
+    point_randomness: f64,
+    random_seed: u64,
 }
 
 #[wasm_bindgen]
-impl NoPointCube {
-    pub fn new(pos: Vector3, size: Vector3) -> NoPointCube
+impl RecordPointSphere {
+    pub fn new(pos: Vector3, 
+        size: Vector3,
+        rings: u64,  
+        point_scale: u64, 
+        point_randomness: f64, 
+        random_seed: u64, ) -> RecordPointSphere {
+        return RecordPointSphere {
+            pos, size, rings, point_scale, point_randomness, random_seed
+        }
+    }
+}
+
+#[wasm_bindgen]
+pub enum Shape
+{
+    Block,
+    Sphere
+}
+
+#[wasm_bindgen]
+pub struct NoPointArea
+{
+    pos: Vector3,
+    size: Vector3,
+    shape: Shape
+}
+
+#[wasm_bindgen]
+impl NoPointArea {
+    pub fn new(shape: u32, pos: Vector3, size: Vector3) -> NoPointArea
     {
-        return NoPointCube {
+        let shap: Shape = match shape
+        {
+            0 => Shape::Block,
+            1 => Shape::Sphere,
+            _ => Shape::Block
+        };
+
+        return NoPointArea {
             pos,
-            size
+            size,
+            shape: shap
         }
     }
 }
@@ -72,7 +114,9 @@ pub struct Universe {
     record_point_vectors: Vec<Vector3>,
 
     record_point_matrixs: Vec<RecordPointMatrix>,
-    no_point_cubes: Vec<NoPointCube>
+    record_point_spheres: Vec<RecordPointSphere>,
+
+    no_point_areas: Vec<NoPointArea>
 }
 
 /// Public methods, exported to JavaScript.
@@ -83,14 +127,17 @@ impl Universe {
         let record_point_vectors: Vec<Vector3> = Vec::new();
 
         let record_point_matrixs: Vec<RecordPointMatrix> = Vec::new();
-        let no_point_cubes: Vec<NoPointCube>   = Vec::new();
+        let no_point_areas: Vec<NoPointArea>   = Vec::new();
+        let record_point_spheres: Vec<RecordPointSphere> = Vec::new();
         
         return Universe {
             record_points,
             record_point_vectors,
 
             record_point_matrixs,
-            no_point_cubes
+            record_point_spheres,
+
+            no_point_areas
         }
     }
 
@@ -126,11 +173,41 @@ impl Universe {
                     {
                         self.record_points.push(Vector3 {
                             x: ((x as f64)/(matrix.point_scale.x-1f64)-0.5f64)*2f64*matrix.size.x
-                                + (rng.gen_range(-1f64..1f64))*matrix.point_randomness,
+                                + (rng.gen_range(-1f64..1f64))*matrix.point_randomness + matrix.pos.x,
                             y: ((y as f64)/(matrix.point_scale.y-1f64)-0.5f64)*2f64*matrix.size.y
-                                + (rng.gen_range(-1f64..1f64))*matrix.point_randomness,
+                                + (rng.gen_range(-1f64..1f64))*matrix.point_randomness + matrix.pos.y,
                             z: ((z as f64)/(matrix.point_scale.z-1f64)-0.5f64)*2f64*matrix.size.z
-                                + (rng.gen_range(-1f64..1f64))*matrix.point_randomness,
+                                + (rng.gen_range(-1f64..1f64))*matrix.point_randomness + matrix.pos.z,
+                        });
+                    }
+                }
+            }
+        }
+
+        for sphere in &self.record_point_spheres
+        {
+            let mut rng: ChaCha8Rng = ChaCha8Rng::seed_from_u64(sphere.random_seed);
+            for x in 0..sphere.point_scale
+            {
+                let x_rot = PI * 2f64*(x as f64 / sphere.point_scale as f64);
+                for y in 0..sphere.point_scale
+                {
+                    let y_rot = PI * 2f64*(y as f64 / sphere.point_scale as f64);
+                    let rot_vector = Vector3 {
+                        x: y_rot.cos()*x_rot.cos(),
+                        y: y_rot.sin()*x_rot.cos(),
+                        z: x_rot.sin()
+                    };
+                    for ring in 0..sphere.rings
+                    {
+                        let ring_i = (ring as f64 + 1f64)/(sphere.rings as f64);
+                        self.record_points.push(Vector3 {
+                            x: rot_vector.x * sphere.size.x * ring_i
+                                + (rng.gen_range(-1f64..1f64))*sphere.point_randomness + sphere.pos.x,
+                            y: rot_vector.y * sphere.size.y * ring_i
+                                + (rng.gen_range(-1f64..1f64))*sphere.point_randomness + sphere.pos.y,
+                            z: rot_vector.z * sphere.size.z * ring_i
+                                + (rng.gen_range(-1f64..1f64))*sphere.point_randomness + sphere.pos.z,
                         });
                     }
                 }
@@ -141,15 +218,29 @@ impl Universe {
         'main: for i in (0..length-1usize).rev()
         {
             let p =  self.record_points[i];
-            for cube in &self.no_point_cubes
+            for area in &self.no_point_areas
             {
-                let relative_pos = cube.pos-p;
-                if relative_pos.x.abs() < cube.size.x 
-                    && relative_pos.y.abs() < cube.size.y
-                    && relative_pos.z.abs() < cube.size.z
+                let relative_pos = area.pos-p;
+                match area.shape 
                 {
-                    self.record_points.remove(i);
-                    continue 'main;
+                    Shape::Block => {
+                        if relative_pos.x.abs() < area.size.x 
+                            && relative_pos.y.abs() < area.size.y
+                            && relative_pos.z.abs() < area.size.z
+                        {
+                            self.record_points.remove(i);
+                            continue 'main;
+                        }
+                    },
+                    Shape::Sphere => {
+                        if ((relative_pos.x/area.size.x).powf(2f64).abs() 
+                            +(relative_pos.y/area.size.y).powf(2f64).abs() 
+                            +(relative_pos.z/area.size.z).powf(2f64).abs() ).sqrt() <= 1f64
+                        {
+                            self.record_points.remove(i);
+                            continue 'main;
+                        }
+                    }
                 }
             }
         }
@@ -179,8 +270,13 @@ impl Universe {
         self.record_point_matrixs.push(matrix);
     }
 
-    pub fn add_no_point_cube(&mut self, no_point_cube: NoPointCube)
+    pub fn add_no_point_area(&mut self, no_point_area: NoPointArea)
     {
-        self.no_point_cubes.push(no_point_cube);
+        self.no_point_areas.push(no_point_area);
+    }
+
+    pub fn add_point_sphere(&mut self, point_sphere: RecordPointSphere)
+    {
+        self.record_point_spheres.push(point_sphere);
     }
 }

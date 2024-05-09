@@ -7,7 +7,7 @@ const sand_material = new THREE.LineBasicMaterial({
 	color: 0xffffff
 });
 
-import init, { Universe, Vector3, RecordPointMatrix, NoPointCube } from "../pkg/magnetism_simulation.js";
+import init, { Universe, Vector3, RecordPointMatrix, NoPointArea, RecordPointSphere } from "../pkg/magnetism_simulation.js";
 
 // Bars Creation
 const events = new Events()
@@ -100,11 +100,14 @@ function red_green_color(colors, alpha)
 init().then((wasm) => {
 	const universe = Universe.new()
 
-	const matrix = RecordPointMatrix.new(vec_new(0, 5, 0), vec_new(10, 10, 10), vec_new(15, 15, 15), 1, 0n)
-	universe.add_record_point_matrix(matrix)
+	const matrix = RecordPointMatrix.new(vec_new(0, 0, 0), vec_new(10, 10, 10), vec_new(15, 15, 15), 1, 0n)
+	// universe.add_record_point_matrix(matrix)
 
-	const no_point_cube = NoPointCube.new(vec_new(0, 0, 0), vec_new(1, 1, 1))
-	universe.add_no_point_cube(no_point_cube)
+	const no_point_area = NoPointArea.new(1, vec_new(0, 0, 0), vec_new(1, 1, 1))
+	universe.add_no_point_area(no_point_area)
+
+	const sphere = RecordPointSphere.new(vec_new(0, 0, 0), vec_new(10, 10, 10), 5n, 50n, 1, 0n)
+	universe.add_point_sphere(sphere)
 
 	universe.add_record_points()
 	universe.compute_record_points();
