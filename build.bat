@@ -1,6 +1,6 @@
 @echo off
 
-wasm-pack build --target web
+wasm-pack build --release --target web
 
 echo Make sure to specify a directory
 
