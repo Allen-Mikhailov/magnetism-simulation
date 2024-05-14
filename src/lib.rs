@@ -3,6 +3,7 @@ use vector3::Vector3;
 
 use wasm_bindgen::prelude::*;
 
+use std::ops::Sub;
 use std::vec;
 use js_sys::Math::min;
 use js_sys::Object;
@@ -143,10 +144,20 @@ impl Universe {
 
     pub fn compute_field(&self, p: &Vector3) -> Vector3
     {
-        const UP: Vector3 = Vector3 {
-            x: 1f64,y: 1f64,z: 1f64
+        let wl = 10;
+        let w: Vector3 = Vector3 {
+            x: 0f64, y: -5f64, z: 0f64
         };
-        return UP.cross(p)/(p.magnitude());
+        let f: Vector3 = p.sub(w);
+        let c1: f64 = f.x*f.x+f.z*f.z;
+
+        let d1: f64 = f.y-wl as f64;
+
+        return Vector3 {
+            x: f.z*(d1/(c1*(d1*d1+c1).sqrt())-f.y/(c1+(f.y*f.y+c1).sqrt())),
+            y: 0f64,
+            z: -f.x*(d1/(c1*(d1*d1+c1).sqrt())-f.y/(c1+(f.y*f.y+c1).sqrt())),
+        }
     }
 
     pub fn compute_record_points(&mut self)
@@ -172,11 +183,11 @@ impl Universe {
                     for z in 0..matrix.point_scale.z as usize
                     {
                         self.record_points.push(Vector3 {
-                            x: ((x as f64)/(matrix.point_scale.x-1f64)-0.5f64)*2f64*matrix.size.x
+                            x: ((x as f64)/(matrix.point_scale.x-1f64)-0.5f64)*matrix.size.x
                                 + (rng.gen_range(-1f64..1f64))*matrix.point_randomness + matrix.pos.x,
-                            y: ((y as f64)/(matrix.point_scale.y-1f64)-0.5f64)*2f64*matrix.size.y
+                            y: ((y as f64)/(matrix.point_scale.y-1f64)-0.5f64)*matrix.size.y
                                 + (rng.gen_range(-1f64..1f64))*matrix.point_randomness + matrix.pos.y,
-                            z: ((z as f64)/(matrix.point_scale.z-1f64)-0.5f64)*2f64*matrix.size.z
+                            z: ((z as f64)/(matrix.point_scale.z-1f64)-0.5f64)*matrix.size.z
                                 + (rng.gen_range(-1f64..1f64))*matrix.point_randomness + matrix.pos.z,
                         });
                     }
@@ -194,19 +205,19 @@ impl Universe {
                 {
                     let y_rot = PI * 2f64*(y as f64 / sphere.point_scale as f64);
                     let rot_vector = Vector3 {
-                        x: y_rot.cos()*x_rot.cos(),
-                        y: y_rot.sin()*x_rot.cos(),
-                        z: x_rot.sin()
+                        x: y_rot.cos()*x_rot.sin(),
+                        y: y_rot.sin()*x_rot.sin(),
+                        z: x_rot.cos()
                     };
                     for ring in 0..sphere.rings
                     {
                         let ring_i = (ring as f64 + 1f64)/(sphere.rings as f64);
                         self.record_points.push(Vector3 {
-                            x: rot_vector.x * sphere.size.x * ring_i
+                            x: rot_vector.x * sphere.size.x * ring_i * 0.5f64
                                 + (rng.gen_range(-1f64..1f64))*sphere.point_randomness + sphere.pos.x,
-                            y: rot_vector.y * sphere.size.y * ring_i
+                            y: rot_vector.y * sphere.size.y * ring_i * 0.5f64
                                 + (rng.gen_range(-1f64..1f64))*sphere.point_randomness + sphere.pos.y,
-                            z: rot_vector.z * sphere.size.z * ring_i
+                            z: rot_vector.z * sphere.size.z * ring_i * 0.5f64
                                 + (rng.gen_range(-1f64..1f64))*sphere.point_randomness + sphere.pos.z,
                         });
                     }
