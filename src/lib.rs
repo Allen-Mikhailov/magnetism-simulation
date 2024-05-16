@@ -144,20 +144,25 @@ impl Universe {
 
     pub fn compute_field(&self, p: &Vector3) -> Vector3
     {
-        let wl = 10;
+        let l = 10f64;
         let w: Vector3 = Vector3 {
             x: 0f64, y: -5f64, z: 0f64
         };
         let f: Vector3 = p.sub(w);
-        let c1: f64 = f.x*f.x+f.z*f.z;
+        let c: f64 = f.x*f.x+f.z*f.z;
 
-        let d1: f64 = f.y-wl as f64;
+
+        let mut integral: f64 = (l-f.y)*(l*l-2f64*f.y*l+f.y*f.y+c).sqrt()/(c*l*l- 2f64*c*l*f.y+c*f.y*f.y+c*c);
+        integral += f.y/(c*(f.y*f.y+c).sqrt());
+        integral /= l;
 
         return Vector3 {
-            x: f.z*(d1/(c1*(d1*d1+c1).sqrt())-f.y/(c1+(f.y*f.y+c1).sqrt())),
+            x: l*f.z*integral,
             y: 0f64,
-            z: -f.x*(d1/(c1*(d1*d1+c1).sqrt())-f.y/(c1+(f.y*f.y+c1).sqrt())),
-        }
+            z: -l*f.x*integral,
+        };
+
+        // return w.cross(p);
     }
 
     pub fn compute_record_points(&mut self)
@@ -235,9 +240,9 @@ impl Universe {
                 match area.shape 
                 {
                     Shape::Block => {
-                        if relative_pos.x.abs() < area.size.x 
-                            && relative_pos.y.abs() < area.size.y
-                            && relative_pos.z.abs() < area.size.z
+                        if relative_pos.x.abs() < area.size.x / 2f64
+                            && relative_pos.y.abs() < area.size.y / 2f64
+                            && relative_pos.z.abs() < area.size.z / 2f64
                         {
                             self.record_points.remove(i);
                             continue 'main;

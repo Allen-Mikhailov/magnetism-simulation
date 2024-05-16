@@ -107,44 +107,51 @@ function debug_line(p1, p2, color)
 }
 
 // Cone test
-const quaternion = new THREE.Quaternion();
-quaternion.setFromAxisAngle( new THREE.Vector3( 0, 0, 1 ), Math.PI/2 );
 
-// const cone_vertices = []
-// const p1 = new THREE.Vector3(0, 0, 0)
-// const field = new THREE.Vector3(.6, -1, 0).normalize()
-// const cone_size = .4
-// const point_distance = cone_size * (Math.sqrt(3)/2-.5)
-// const height = Math.sqrt(cone_size*cone_size*.75 - point_distance*point_distance )
-// const cone_head = p1.clone().addScaledVector(field, height)
-// const rot = Math.random()*Math.PI*2
-// const y_vector = new THREE.Vector3(1, 0, 0)
-// const rot_vector = field.clone().applyQuaternion(quaternion)
+function createCone(pos, field)
+{
+	const quaternion = new THREE.Quaternion();
+	quaternion.setFromUnitVectors( new THREE.Vector3( 0, 1, 0 ), field.clone().normalize() );
+
+	const cone_vertices = []
+	const cone_size = .1
+	const L = cone_size * (Math.sqrt(3)/2)
+	const point_distance = L*(2/3)
+	const height = Math.sqrt(cone_size*cone_size - point_distance*point_distance )
+	const cone_head = new THREE.Vector3(0, height*1.5, 0)
+	const rot = Math.random()*Math.PI*2
 
 
-// debug_line(p1, field, 0xff0000)
-// // debug_line(p1, rot_vector, 0xff0000)
-// debug_line(p1, rot_vector, 0x00ff00)
+	// debug_line(pos, field, 0xff0000)
+	// debug_line(pos, rot_vector, 0x00ff00)
 
-// const point1 = rot_vector.clone().applyAxisAngle(field, rot).multiplyScalar(point_distance*2).add(p1)
-// const point2 = rot_vector.clone().applyAxisAngle(field, rot + Math.PI*2/3).multiplyScalar(point_distance*2).add(p1)
-// const point3 = rot_vector.clone().applyAxisAngle(field, rot + Math.PI*4/3).multiplyScalar(point_distance*2).add(p1)
+	const point1 = new THREE.Vector3(Math.cos(rot+Math.PI*0/3)*point_distance, 0, Math.sin(rot+Math.PI*0/3)*point_distance)
+	const point2 = new THREE.Vector3(Math.cos(rot+Math.PI*2/3)*point_distance, 0, Math.sin(rot+Math.PI*2/3)*point_distance)
+	const point3 = new THREE.Vector3(Math.cos(rot+Math.PI*4/3)*point_distance, 0, Math.sin(rot+Math.PI*4/3)*point_distance)
 
-// debug_line(p1, point1, 0x000ff0)
-// debug_line(p1, point2, 0x000ff0)
-// debug_line(p1, point3, 0x000ff0)
+	cone_head.applyQuaternion(quaternion).add(pos)
+	point1.applyQuaternion(quaternion).add(pos)
+	point2.applyQuaternion(quaternion).add(pos)
+	point3.applyQuaternion(quaternion).add(pos)
 
-// cone_vertices.push(point3, point2, point1)
-// cone_vertices.push(point1, point2, cone_head)
-// cone_vertices.push(point2, point3, cone_head)
-// cone_vertices.push(cone_head, point3, point1)
+	// debug_line(pos, point1, 0x000ff0)
+	// debug_line(pos, point2, 0x000ff0)
+	// debug_line(pos, point3, 0x000ff0)
+
+	cone_vertices.push(point3, point2, point1)
+	cone_vertices.push(point1, point2, cone_head)
+	cone_vertices.push(point2, point3, cone_head)
+	cone_vertices.push(cone_head, point3, point1)
+	return cone_vertices
+}
+
+
+// const cone_vertices = createCone(new THREE.Vector3(0, 0, 0), new THREE.Vector3(Math.random(), Math.random(), Math.random()))
 
 // const cone_buffer = new THREE.BufferGeometry()
 // cone_buffer.setFromPoints( cone_vertices );
 // const material = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
 // const cones = new THREE.Mesh( cone_buffer, material );
-
-
 // scene.add(cones)
 
 // Startup
@@ -152,10 +159,10 @@ init().then((wasm) => {
 	// return
 	const universe = Universe.new()
 
-	const matrix = RecordPointMatrix.new(vec_new(0, 0, 0), vec_new(10, 20, 10), vec_new(15, 15, 15), 5, 0n)
+	const matrix = RecordPointMatrix.new(vec_new(0, 0, 0), vec_new(6, 20, 6), vec_new(15, 45, 15), .1, 0n)
 	universe.add_record_point_matrix(matrix)
 
-	const no_point_area = NoPointArea.new(0, vec_new(0, 0, 0), vec_new(5, 15, 5))
+	const no_point_area = NoPointArea.new(0, vec_new(0, 0, 0), vec_new(3, 10, 3))
 	universe.add_no_point_area(no_point_area)
 
 	const sphere = RecordPointSphere.new(vec_new(0, 0, 0), vec_new(10, 10, 10), 1n, 50n, 0, 0n)
@@ -207,27 +214,8 @@ init().then((wasm) => {
 
 
 		// Creating Cone
-		const cone_size = .4
-		p1 = p1.clone().addScaledVector(field, -cone_size/2)
-		const point_distance = cone_size * (Math.sqrt(3)/2-.5)
-		const height = Math.sqrt(cone_size*cone_size*.75 - point_distance*point_distance )
-		const cone_head = p1.clone().addScaledVector(field, height)
-		const rot = Math.random()*Math.PI*2
-		const rot_vector = field.clone().applyQuaternion(quaternion)
-
-
-		// debug_line(p1, field.clone().add(p1), 0xff0000)
-		// debug_line(p1, rot_vector, 0xff0000)
-		// debug_line(p1, rot_vector, 0x00ff00)
-
-		const point1 = rot_vector.clone().applyAxisAngle(field, rot).multiplyScalar(point_distance).add(p1)
-		const point2 = rot_vector.clone().applyAxisAngle(field, rot + Math.PI*2/3).multiplyScalar(point_distance).add(p1)
-		const point3 = rot_vector.clone().applyAxisAngle(field, rot + Math.PI*4/3).multiplyScalar(point_distance).add(p1)
-
-		cone_vertices.push(point3, point2, point1)
-		cone_vertices.push(point1, point2, cone_head)
-		cone_vertices.push(point2, point3, cone_head)
-		cone_vertices.push(cone_head, point3, point1)
+		const vert = createCone(p1, field)
+		cone_vertices.push(...vert)
 	}
 
 	for (let i = 0; i < record_point_count; i++)
@@ -264,7 +252,7 @@ init().then((wasm) => {
 
 
 	scene.add(points)
-	scene.add(cones)
+	// scene.add(cones)
 
 	// Adding Sand
 	
