@@ -58,7 +58,6 @@ class Events
 
     fire(event, ...args)
     {
-        console.log(event, "was fired")
         const event_cons = this.connections[event]
         if (event_cons)
         {

@@ -1,4 +1,5 @@
 mod vector3;
+use cgmath::*;
 use vector3::Vector3;
 
 use wasm_bindgen::prelude::*;
@@ -33,6 +34,17 @@ impl Vector3 {
             y,
             z
         };
+    }
+}
+
+impl  Vector3 {
+    pub fn to_cg(self) -> cgmath::Vector3<f64>
+    {
+        return cgmath::Vector3::<f64> {
+            x: self.x,
+            y: self.y,
+            z: self.z
+        }
     }
 }
 
@@ -99,11 +111,30 @@ impl NoPointArea {
             1 => Shape::Sphere,
             _ => Shape::Block
         };
-
         return NoPointArea {
             pos,
             size,
             shape: shap
+        }
+    }
+}
+
+#[wasm_bindgen]
+pub struct StraitWire
+{
+    pos: Vector3,
+    direction: Vector3,
+    length: f64
+}
+
+impl StraitWire
+{
+    pub fn new(pos: Vector3, direction: Vector3, length: f64) -> StraitWire
+    {
+        return StraitWire {
+            pos,
+            direction,
+            length
         }
     }
 }
@@ -117,7 +148,9 @@ pub struct Universe {
     record_point_matrixs: Vec<RecordPointMatrix>,
     record_point_spheres: Vec<RecordPointSphere>,
 
-    no_point_areas: Vec<NoPointArea>
+    no_point_areas: Vec<NoPointArea>,
+
+    strait_wires: Vec<StraitWire>
 }
 
 /// Public methods, exported to JavaScript.
@@ -130,6 +163,8 @@ impl Universe {
         let record_point_matrixs: Vec<RecordPointMatrix> = Vec::new();
         let no_point_areas: Vec<NoPointArea>   = Vec::new();
         let record_point_spheres: Vec<RecordPointSphere> = Vec::new();
+
+        let strait_wires: Vec<StraitWire> = Vec::new();
         
         return Universe {
             record_points,
@@ -138,17 +173,33 @@ impl Universe {
             record_point_matrixs,
             record_point_spheres,
 
-            no_point_areas
+            no_point_areas,
+
+            strait_wires
         }
     }
 
     pub fn compute_field(&self, p: &Vector3) -> Vector3
     {
-        let l = 10f64;
+        let dir: cgmath::Vector3<f64>  = Vector3 {
+            x: 0.6f64, y: 0.5f64, z: 1f64,
+        }.normalize().to_cg();
+
+        let up = Vector3 {
+            x: 0f64, y: 1f64, z: 0f64,
+        }.to_cg();
+
+        let to_up = Quaternion::between_vectors(dir, up);
+        let from_up = Quaternion::between_vectors(up, dir);
+
+        let l: f64 = 10f64;
         let w: Vector3 = Vector3 {
-            x: 0f64, y: -5f64, z: 0f64
+            x: 0f64, y: 0f64, z: 0f64
         };
-        let f: Vector3 = p.sub(w);
+        let f: cgmath::Vector3<f64> = to_up.rotate_vector(p.sub(w).to_cg());
+
+        
+
         let c: f64 = f.x*f.x+f.z*f.z;
 
 
@@ -156,10 +207,16 @@ impl Universe {
         integral += f.y/(c*(f.y*f.y+c).sqrt());
         integral /= l;
 
-        return Vector3 {
+        let field = from_up.rotate_vector(Vector3 {
             x: l*f.z*integral,
             y: 0f64,
             z: -l*f.x*integral,
+        }.to_cg());
+
+        return Vector3 {
+            x: field.x,
+            y: field.y,
+            z: field.z,
         };
 
         // return w.cross(p);
