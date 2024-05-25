@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Band Test</title>
+
+    <style>
+        .color {
+            width: 50px;
+            height: 50px;
+            /* position: absolute; */
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <input type="range" min="1" max="10" value="5" class="slider" id="color_range">
+    <div id="slider_display"></div>
+    <div id="index_display"></div>
+    <div id="color_display" style="width: 50px; height: 50px; position: absolute;"></div>
+    <script type="module">
+        import ColorBand from "./js/ColorBand.js"
+        import * as THREE from "./js/threejs/three.js"
+
+        var slider = document.getElementById("color_range");
+        var slider_display = document.getElementById("slider_display");
+        var color_display = document.getElementById("color_display");
+        let index_display = document.getElementById("index_display");
+        slider_display.innerText = slider.value; // Display the default slider value
+
+        const band = new ColorBand([new THREE.Color(0xff0000), new THREE.Color(0x00ff00), new THREE.Color(0x0000ff)])
+
+        const color_bands = 10
+
+        const band_array = []
+        for (let i = 0; i < 20; i++)
+        {
+            band_array.push(i)
+        }
+        band.compute_scale(band_array, color_bands)
+
+        function to_css_color(color)
+        {
+            return `rgb(${color.r*255}, ${color.g*255}, ${color.b*255})`
+        }
+
+        console.log(band.color_scale)
+
+        for (let i = 0; i < color_bands; i++)
+        {
+            const color_indexes = document.createElement("span")
+            color_indexes.className = "color"
+            color_indexes.backgroundColor = to_css_color(band.color_scale[i])
+            color_indexes.innerText = band.scale[i]
+            document.body.appendChild(color_indexes)
+        }
+
+        // Update the current slider value (each time you drag the slider handle)
+        slider.oninput = function() {
+            slider_display.innerText = this.value;
+            const index = band.get_index(parseFloat(this.value))
+            const color = band.get_color(parseFloat(this.value))
+            index_display.innerText = index
+            color_display.style.backgroundColor = to_css_color(color)
+        }
+
+    </script>
+</body>
+</html>

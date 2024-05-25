@@ -218,8 +218,6 @@ impl Universe {
             y: field.y,
             z: field.z,
         };
-
-        // return w.cross(p);
     }
 
     pub fn compute_record_points(&mut self)

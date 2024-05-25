@@ -27,6 +27,11 @@ const line_length = 1
 
 const vec_new = Vector3.js_new
 
+function color_array(color)
+{
+	return [color.r*255, color.g*255, color.b*255, 255]
+}
+
 function alpha_color(colors, alpha)
 {
 	colors.push(255)
@@ -60,7 +65,12 @@ function render_field()
 	const record_point_ptr = universe.get_record_point_ptr();
 	const record_point_vectors = universe.record_point_vectors_ptr();
 
-	const colorband = new ColorBand()
+	const color_range = [
+		new THREE.Color(0xff0000), 
+		new THREE.Color(0x00ff00), 
+		// new THREE.Color(0x0000ff)
+	]
+	const colorband = new ColorBand(color_range)
 
 
 	const vertices = []
@@ -97,7 +107,7 @@ function render_field()
 
 		fields.push(field.length())
 
-		const field_magnitude = Math.sqrt(field.x*field.x+field.y*field.y+field.z*field.z)
+		const field_magnitude = field.length()
 		if (largest_field < field_magnitude)
 				largest_field = field_magnitude
 
@@ -121,6 +131,14 @@ function render_field()
 		}
 	}
 
+	colorband.set_modifier((x) => x)
+	// colorband.set_modifier((x) => Math.log(x+1))
+	colorband.compute_scale(fields, 10)
+
+	console.log(colorband.scale)
+
+	// Colors
+
 	for (let i = 0; i < record_point_count; i++)
 	{
 		const field = new THREE.Vector3(
@@ -128,14 +146,15 @@ function render_field()
 			field_buffer[i*3+1], 
 			field_buffer[i*3+2]
 		).length()
-
-		let alpha = Math.log(field+1)/Math.log(largest_field+1)
-
-		red_green_color(colors, alpha)
-		red_green_color(colors, alpha)
+		
+		// const color = color_array(new THREE.Color(0xff0000).lerp(new THREE.Color(0x00ff00), field/largest_field))
+		const color = color_array(colorband.get_color(field))
+		// console.log(...color)
+		colors.push(...color)
+		colors.push(...color)
 
 		for (let i = 0; i < 4*3; i++)
-			red_green_color(cone_colors, alpha)
+			cone_colors.push(...color)
 	}
 
 	const line_buffer = new THREE.BufferGeometry()
