@@ -23,7 +23,7 @@ const three_js_handler = new ThreeJsHandler()
 
 const hot_color = new THREE.Color(255, 0, 0)
 const cold_color = new THREE.Color(0, 255, 0)
-const line_length = 1
+const line_length = 4
 
 const vec_new = Vector3.js_new
 
@@ -107,10 +107,6 @@ function render_field()
 
 		fields.push(field.length())
 
-		const field_magnitude = field.length()
-		if (largest_field < field_magnitude)
-				largest_field = field_magnitude
-
 		field.normalize()
 
 		if (line_type == "arrow" )
@@ -147,9 +143,7 @@ function render_field()
 			field_buffer[i*3+2]
 		).length()
 		
-		// const color = color_array(new THREE.Color(0xff0000).lerp(new THREE.Color(0x00ff00), field/largest_field))
 		const color = color_array(colorband.get_color(field))
-		// console.log(...color)
 		colors.push(...color)
 		colors.push(...color)
 
@@ -205,7 +199,7 @@ init().then((current_wasm) => {
 	// return
 	universe = Universe.new()
 
-	const matrix = RecordPointMatrix.new(vec_new(0, 0, 0), vec_new(10, 10, 10), vec_new(10, 10, 10), 0.001, 0n)
+	const matrix = RecordPointMatrix.new(vec_new(5, 5, 5), vec_new(30, 30, 30), vec_new(10, 10, 10), 1, 0n)
 	universe.add_record_point_matrix(matrix)
 
 	const no_point_area = NoPointArea.new(0, vec_new(0, 0, 0), vec_new(3, 10, 3))

@@ -129,3 +129,34 @@ impl Vector3 {
         self.clone() / self.magnitude()
     }
 }
+
+#[wasm_bindgen]
+impl Vector3 {
+    pub fn js_new(x: f64, y: f64, z: f64) -> Vector3
+    {
+        return Vector3 {
+            x,
+            y,
+            z
+        };
+    }
+
+    pub fn set(&mut self, x: f64, y: f64, z: f64)
+    {
+        self.x = x;
+        self.y = y;
+        self.z = z;
+        
+    }
+}
+
+impl  Vector3 {
+    pub fn to_cg(self) -> cgmath::Vector3<f64>
+    {
+        return cgmath::Vector3::<f64> {
+            x: self.x,
+            y: self.y,
+            z: self.z
+        }
+    }
+}

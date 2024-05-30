@@ -21,8 +21,6 @@ class ColorBand
         this.modifier = (x) => x
         this.scale = null
         this.color_scale = null
-
-        console.log("colors", colors)
     }
 
     set_modifier(modifier)
