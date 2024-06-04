@@ -113,12 +113,12 @@ body {
   filter: invert(100%);
 }
 
-#sidebar {
+.sidebar {
   height: 100%;
   width: 15vw;
 }
 
-#minisidebar {
+.minisidebar {
   height: 100%;
   width: 3.5vw;
 }

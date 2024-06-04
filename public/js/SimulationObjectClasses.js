@@ -15,6 +15,12 @@ const UpdateTypes = Object.freeze({
     FIELD:  Symbol("field")
 });
 
+function createKey() {
+    return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, c =>
+        (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+    );
+}
+
 class Vector3Base
 {
     constructor(x, y, z)
@@ -38,8 +44,10 @@ class SimulationObject
     constructor(object_type)
     {
         this.type = object_type
-        this.update_connections = []
+        this.update_callbacks = {}
+        this.key = createKey()
     }
+    
 
     render(scene)
     {
@@ -53,9 +61,14 @@ class SimulationObject
 
     update()
     {
-        this.update_connections.map((callback) => {
-            callback()
+        Object.keys(this.update_callbacks).map(key => {
+            this.update_callbacks[key]()
         })
+    }
+
+    add_update_callback(name, callback)
+    {
+        this.update_callbacks[name] = callback
     }
 
     destroy()
@@ -175,9 +188,9 @@ const class_strings = {
 
 function load_from_object(obj)
 {
-    const obj = new class_strings[obj]()
-    obj.from_json(obj)
-    return obj
+    const simulation_obj = new class_strings[obj.type]()
+    simulation_obj.from_json(obj)
+    return simulation_obj
 }   
 
 export {load_from_object}

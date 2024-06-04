@@ -3,9 +3,20 @@ import UILoader from "./UILoader.js";
 import * as THREE from "./threejs/three.js"
 import ThreeJsHandler from "./ThreeJsHandler.js";
 
+import init, { 
+    Universe, 
+    Vector3, 
+    RecordPointMatrix, 
+    NoPointArea, 
+    RecordPointSphere, 
+    StraightWire,
+    Container
+} from "../pkg/magnetism_simulation.js";
+
 import ColorBand from "./ColorBand.js";
 
-import init, { Universe, Vector3, RecordPointMatrix, NoPointArea, RecordPointSphere } from "../pkg/magnetism_simulation.js";
+import { StraightWireObj } from "./SimulationObjectClasses.js";
+import { SimulationHandler } from "./SimulationHandler.js";
 
 let wasm
 let universe
@@ -30,24 +41,6 @@ const vec_new = Vector3.js_new
 function color_array(color)
 {
 	return [color.r*255, color.g*255, color.b*255, 255]
-}
-
-function alpha_color(colors, alpha)
-{
-	colors.push(255)
-	colors.push(255)
-	colors.push(255)
-	colors.push((1-alpha)*255)
-}
-
-function red_green_color(colors, alpha)
-{
-	const lerped = cold_color.clone().lerp(hot_color, alpha)
-
-	colors.push(lerped.r)
-	colors.push(lerped.g)
-	colors.push(lerped.b)
-	colors.push(255)
 }
 
 function render_field()
@@ -83,7 +76,6 @@ function render_field()
 
 	const point_array = []
 
-	let largest_field = 0;
 	let fields = []
 
 	for (let i = 0; i < record_point_count; i++)
@@ -197,16 +189,7 @@ init().then((current_wasm) => {
 	wasm = current_wasm
 
 	// return
-	universe = Universe.new()
-
-	const matrix = RecordPointMatrix.new(vec_new(5, 5, 5), vec_new(30, 30, 30), vec_new(10, 10, 10), 1, 0n)
-	universe.add_record_point_matrix(matrix)
-
-	const no_point_area = NoPointArea.new(0, vec_new(0, 0, 0), vec_new(3, 10, 3))
-	universe.add_no_point_area(no_point_area)
-
-	const sphere = RecordPointSphere.new(vec_new(0, 0, 0), vec_new(10, 10, 10), 1n, 50n, 0, 0n)
-	// universe.add_point_sphere(sphere)
+	
 
 	universe.add_record_points()
 	universe.compute_record_points();

@@ -9,11 +9,45 @@ class SimulationHandler
     {
         this.sim_objects = {}
         this.universe = new Universe();
+        this.update_callbacks = {}
+    }
+
+    add_update_callback(name, callback)
+    {
+        this.update_callbacks[name] = callback
+    }
+
+    update()
+    {
+        Object.keys(this.update_callbacks).map(key => {
+            this.update_callbacks[key]()
+        })
     }
 
     clear()
     {
 
+    }
+
+    add_object(simulation_object)
+    {
+        this.universe.add_object(simulation_object.container)
+    }
+
+    remote_object()
+    {
+        this.universe.remove_object(sim_object.container)
+    }
+
+    field_update() 
+    {
+        this.universe.compute_record_points();
+    }
+
+    point_update()
+    {
+        this.universe.add_record_points()
+	    field_update() 
     }
 
     from_json(json_obj)
