@@ -4,7 +4,8 @@ use vector3::Vector3;
 
 use wasm_bindgen::prelude::*;
 
-use std::ops::Sub;
+use std::{ops::Sub};
+use std::ptr;
 
 const PI: f64 = std::f64::consts::PI;
 
@@ -408,5 +409,17 @@ impl Universe {
     {
         self.objects.push(container);
         // if (container.package)
+    }
+
+    pub fn remove_object(&mut self, container: Container)
+    {
+        for i in 0..self.objects.len()
+        {
+            if ptr::eq(&(self.objects[i]), &container)
+            {
+                self.objects.remove(i);
+                break;
+            }
+        }
     }
 }
