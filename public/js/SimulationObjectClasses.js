@@ -30,10 +30,20 @@ class Vector3Base
         this.is_vector_base = true
     }
 
+    static from_three(v)
+    {
+        return new Vector3Base(v.x, v.y, v.z)
+    }
+
     set(x, y, z)
     {
         this.three.set(x, y, z)
         this.rust.set(x, y, z)
+    }
+
+    set_from_three(three)
+    {
+        this.set(three.x, three.y, three.z)
     }
 }
 

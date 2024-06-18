@@ -15,11 +15,10 @@ import init, {
 
 import ColorBand from "./ColorBand.js";
 
-import { StraightWireObj } from "./SimulationObjectClasses.js";
+import { StraightWireObj, Vector3Base } from "./SimulationObjectClasses.js";
 import { SimulationHandler } from "./SimulationHandler.js";
 
 let wasm
-let universe
 let lines  = null
 let cones  = null
 let points = null
@@ -27,13 +26,18 @@ let points = null
 let line_type = "arrow"
 let display_cones = true
 
+const color_range = [
+	new THREE.Color(0xff0000), 
+	new THREE.Color(0x00ff00), 
+	// new THREE.Color(0x0000ff)
+]
+const colorband = new ColorBand(color_range)
+
 // Bars Creation
 const ui_loader = new UILoader()
-
+let simulation_handler
 const three_js_handler = new ThreeJsHandler()
 
-const hot_color = new THREE.Color(255, 0, 0)
-const cold_color = new THREE.Color(0, 255, 0)
 const line_length = 4
 
 const vec_new = Vector3.js_new
@@ -57,13 +61,6 @@ function render_field()
 	let record_point_count = universe.get_record_point_count();
 	const record_point_ptr = universe.get_record_point_ptr();
 	const record_point_vectors = universe.record_point_vectors_ptr();
-
-	const color_range = [
-		new THREE.Color(0xff0000), 
-		new THREE.Color(0x00ff00), 
-		// new THREE.Color(0x0000ff)
-	]
-	const colorband = new ColorBand(color_range)
 
 
 	const vertices = []
@@ -169,8 +166,12 @@ function render_field()
 	// three_js_handler.scene.add(points)
 }
 
-function start()
+function start(current_wasm)
 {
+	wasm = current_wasm
+
+	simulation_handler = new SimulationHandler()
+
 	ui_loader.render()
 	ui_loader.main_content.element.appendChild(three_js_handler.renderer.domElement)
 	three_js_handler.start()
@@ -181,18 +182,9 @@ function start()
 
 	ui_loader.events.connect("main_content_resize", updateSize)
 
+
+	render_field()
 }
 
 // Startup
-init().then((current_wasm) => {
-	start()
-	wasm = current_wasm
-
-	// return
-	
-
-	universe.add_record_points()
-	universe.compute_record_points();
-
-	render_field()
-})
+init().then(start)

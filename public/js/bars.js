@@ -276,6 +276,26 @@ class Container
     }
 }
 
+class VContainer extends Container
+{
+    render()
+    {
+        return this.raw_render("v-container", "item-container")
+    }
+}
+
+export {VContainer}
+
+class HContainer extends Container
+{
+    render()
+    {
+        return this.raw_render("h-container", "item-container")
+    }
+}
+
+export {HContainer}
+
 class Bar extends Container {
     render()
     {
@@ -333,6 +353,73 @@ class RawContent
 
         return element
     }
+}
+
+class Contentlist
+{
+    constructor(name)
+    {
+        this.name = name
+        this.list = []
+
+        this.element = null
+    }
+
+    render_list()
+    {
+        
+    }
+
+    update_list(list)
+    {
+        this.list = list
+        if (this.element != null)
+        {
+            this.render_list()
+        }
+    }
+
+    render()
+    {
+        const element = createElement("div", null, "contentlist")
+        this.element = element
+    }
+}
+
+class PropertyListTypes
+{
+    constructor()
+    {
+        this.types = []
+    }
+
+    add_type(type)
+    {
+        this.types.push(type)
+    }
+}
+
+class PropertyListType
+{
+    constructor()
+    {
+
+    }
+}
+
+class PropertyList extends Contentlist
+{
+    constructor(name)
+    {
+        super(name)
+    }
+
+    render_list()
+    {
+        
+    }
+
+    
 }
 
 class Bars

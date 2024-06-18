@@ -14,6 +14,9 @@ class UILoader
         this.main_content = new Bars.RawContent("main_content")
         this.main_content.setEvents(this.events)
 
+        this.middle_content = new Bars.HContainer("middle_content")
+        this.explorer = new Bars.
+
         // Organizing
         this.bars.addItem(this.top_bar)
         this.bars.addItem(this.tool_bar)
