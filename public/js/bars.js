@@ -355,36 +355,131 @@ class RawContent
     }
 }
 
-class Contentlist
+class ContentListItem
 {
-    constructor(name)
+    constructor(name, events, value)
     {
         this.name = name
-        this.list = []
-
-        this.element = null
-    }
-
-    render_list()
-    {
-        
-    }
-
-    update_list(list)
-    {
-        this.list = list
-        if (this.element != null)
-        {
-            this.render_list()
-        }
+        this.events = events
+        this.value = value
     }
 
     render()
     {
-        const element = createElement("div", null, "contentlist")
-        this.element = element
+        this.element = document.createElement("div")
+        return this.element;
+    }
+
+    set_order(order)
+    {
+        this.element.style.order = toString(order)
+    }
+
+    update_value(new_value)
+    {
+        this.value = new_value
+    }
+
+    destroy()
+    {
+        this.element?.remove()
     }
 }
+
+class ContentListItemListButton extends ContentListItem
+{
+    constructor(name, events, label)
+    {
+        super(name, events, label)
+    }
+
+    update_value(value)
+    {
+
+    }
+
+    render()
+    {
+        this.element = createElement("div", null, "ContentListItemButton")
+        this.element.onclick = (e) => {
+            this.events.fire(this.name, e)
+        }
+        this.update_value(value)
+        return this.element
+    }
+}
+
+const TYPE_MATCH = {
+    "list-button": ContentListItemListButton
+}
+
+function GetListItemString(list_item)
+{
+    return list_item.type+":"+list_item.name
+}
+
+class ContentList
+{
+    constructor(name)
+    {
+        this.name = name
+        this.list = [] // List of inputted data
+        this.name_table = {} // table of objects with keys as type:name
+        this.events = new Events();
+
+        this.element = null
+    }
+
+    update_list(new_list)
+    {
+        const needed_strings = {}
+        new_list.map((list_item, i) => {
+            const str = GetListItemString(list_item)
+            needed_strings[str] = list_item
+
+            if (this.name_table[str] == undefined)
+            {
+                const object = new TYPE_MATCH[list_item.type](list_item.name, this.events, list_item.value)
+                this.element.appendChild(object.render())
+                this.name_table[str] = object
+            }
+
+            this.name_table[str].set_order(i)
+        })
+
+        this.list.map((list_item, i) => {
+            const str = GetListItemString(list_item)
+
+            if (needed_strings[str] != undefined)
+            {
+                this.name_table[str].destroy()
+                delete this.name_table[str] 
+            }
+        })
+    }
+
+    update_values(values) // Values by string type:name
+    {
+        Object.keys(values).map(key => {
+            this.name_table[key].update_value(values[key])
+        })
+    }
+
+    update_value(key, value)
+    {
+        this.name_table[key].update_value(value)
+    }
+
+    render()
+    {
+        const element = createElement("div", null, "ContentList")
+        this.element = element
+
+        this.render_list()
+    }
+}
+
+export { ContentList }
 
 class PropertyListTypes
 {
@@ -407,7 +502,7 @@ class PropertyListType
     }
 }
 
-class PropertyList extends Contentlist
+class PropertyList extends ContentList
 {
     constructor(name)
     {

@@ -15,7 +15,7 @@ class UILoader
         this.main_content.setEvents(this.events)
 
         this.middle_content = new Bars.HContainer("middle_content")
-        this.explorer = new Bars.
+        this.explorer = new Bars.ContentList("explorer")
 
         // Organizing
         this.bars.addItem(this.top_bar)

@@ -49,6 +49,10 @@ function color_array(color)
 
 function render_field()
 {
+	const universe = simulation_handler.universe
+
+	console.log("universe", universe)
+
 	if (lines)
 		three_js_handler.scene.remove(lines)
 
