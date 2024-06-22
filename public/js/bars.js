@@ -73,22 +73,6 @@ class Events
     }
 }
 
-class Layer
-{
-    constructor()
-    {
-        this.parent = null
-    }
-}
-
-function CreateHorizontalBar()
-{
-    const main_div = createElement("div", null, "smallborder-horizontal")
-    const sub_div = createElement("div")
-    main_div.appendChild(sub_div)
-    return main_div
-}
-
 class IconButton
 {
     constructor(name, icon)
@@ -255,11 +239,18 @@ class Container
 
         const item_element_list = []
         this.items.map(item => {
-            const element_container = createElement("div", null, item_container_class)
-            const item_element = item.render()
-            item_element_list.push(item_element)
-            element.appendChild(element_container)
-            element_container.appendChild(item_element)
+            if (item_container_class != null)
+            {
+                const element_container = createElement("div", null, item_container_class)
+                const item_element = item.render()
+                item_element_list.push(item_element)
+                element.appendChild(element_container)
+                element_container.appendChild(item_element)
+            } else {
+                const item_element = item.render()
+                item_element_list.push(item_element)
+                element.appendChild(item_element)
+            }
         })
 
         this.elements.push({
@@ -280,7 +271,7 @@ class VContainer extends Container
 {
     render()
     {
-        return this.raw_render("v-container", "item-container")
+        return this.raw_render("v-container", null)
     }
 }
 
@@ -290,7 +281,7 @@ class HContainer extends Container
 {
     render()
     {
-        return this.raw_render("h-container", "item-container")
+        return this.raw_render("h-container", null)
     }
 }
 
@@ -395,7 +386,8 @@ class ContentListItemListButton extends ContentListItem
 
     update_value(value)
     {
-
+        super.update_value(value)
+        this.element.innerText = value
     }
 
     render()
@@ -404,13 +396,38 @@ class ContentListItemListButton extends ContentListItem
         this.element.onclick = (e) => {
             this.events.fire(this.name, e)
         }
-        this.update_value(value)
+        this.update_value(this.value)
+        return this.element
+    }
+}
+
+class ContentListItemHeader extends ContentListItem
+{
+    constructor(name, events, label)
+    {
+        super(name, events, label)
+    }
+
+    update_value(value)
+    {
+        super.update_value(value)
+        this.element.innerText = value
+    }
+
+    render()
+    {
+        this.element = createElement("div", null, "ContentListItemHeader")
+        this.element.onclick = (e) => {
+            this.events.fire(this.name, e)
+        }
+        this.update_value(this.value)
         return this.element
     }
 }
 
 const TYPE_MATCH = {
-    "list-button": ContentListItemListButton
+    "list-button": ContentListItemListButton,
+    "header": ContentListItemHeader
 }
 
 function GetListItemString(list_item)
@@ -475,7 +492,9 @@ class ContentList
         const element = createElement("div", null, "ContentList")
         this.element = element
 
-        this.render_list()
+        this.update_list(this.list)
+
+        return element
     }
 }
 

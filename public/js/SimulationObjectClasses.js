@@ -51,9 +51,10 @@ export {Vector3Base}
 
 class SimulationObject
 {
-    constructor(object_type)
+    constructor(object_type, base)
     {
         this.type = object_type
+        this.base = base
         this.update_callbacks = {}
         this.key = createKey()
     }
@@ -95,26 +96,26 @@ class SimulationObject
         })
     }
 
-    to_json()
-    {
-        const json_obj = {}
-        json_obj.type = this.type
-        Object.keys(this.properties).map((property) => {
-            const value = this.properties[property]
-            if (value.is_vector_base)
-            {
-                json_obj[property] = {x: value.x, y: value.y, z: value.z, is_vector_base: true}
-            } else {
-                json_obj[property] = value
-            }
-        })
-        return json_obj
-    }
+    // to_json()
+    // {
+    //     const json_obj = {}
+    //     json_obj.type = this.type
+    //     Object.keys(this.properties).map((property) => {
+    //         const value = this.properties[property]
+    //         if (value.is_vector_base)
+    //         {
+    //             json_obj[property] = {x: value.x, y: value.y, z: value.z, is_vector_base: true}
+    //         } else {
+    //             json_obj[property] = value
+    //         }
+    //     })
+    //     return json_obj
+    // }
 }
 
 class StraightWireObj extends SimulationObject
 {
-    constructor()
+    constructor(base)
     {
         super("StraightWire")
 
@@ -172,6 +173,7 @@ class StraightWireObj extends SimulationObject
 
     set_property(property, value)
     {
+        this.base[property] = value
         switch (property)
         {
             case "length":

@@ -11,16 +11,20 @@ class UILoader
         this.top_bar = new Bars.Bar("top_bar")
         this.tool_bar = new Bars.Bar("tool_bar")
 
+        this.middle_content = new Bars.HContainer("middle_content")
+
+        this.explorer = new Bars.ContentList("explorer")
+
         this.main_content = new Bars.RawContent("main_content")
         this.main_content.setEvents(this.events)
 
-        this.middle_content = new Bars.HContainer("middle_content")
-        this.explorer = new Bars.ContentList("explorer")
+        this.middle_content.addItem(this.explorer)
+        this.middle_content.addItem(this.main_content)
 
         // Organizing
         this.bars.addItem(this.top_bar)
         this.bars.addItem(this.tool_bar)
-        this.bars.addItem(this.main_content)
+        this.bars.addItem(this.middle_content)
     }
 
     render()

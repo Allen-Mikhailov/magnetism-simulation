@@ -8,7 +8,7 @@ class SimulationHandler
     constructor()
     {
         this.sim_objects = {}
-        this.universe = new Universe();
+        this.universe = Universe.new();
         this.update_callbacks = {}
     }
 

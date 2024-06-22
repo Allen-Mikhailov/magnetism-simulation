@@ -2,6 +2,8 @@ import * as Bars from "./bars.js"
 import UILoader from "./UILoader.js";
 import * as THREE from "./threejs/three.js"
 import ThreeJsHandler from "./ThreeJsHandler.js";
+import DataLoader from "./DataLoader.js";
+import { default_simulation_data } from "./default_data.js";
 
 import init, { 
     Universe, 
@@ -16,7 +18,15 @@ import init, {
 import ColorBand from "./ColorBand.js";
 
 import { StraightWireObj, Vector3Base } from "./SimulationObjectClasses.js";
-import { SimulationHandler } from "./SimulationHandler.js";
+
+
+const sim_data_loader = new DataLoader("game_data:0.0", default_simulation_data)
+
+let sim_data
+
+let simulation_objects
+
+let universe
 
 let wasm
 let lines  = null
@@ -47,12 +57,8 @@ function color_array(color)
 	return [color.r*255, color.g*255, color.b*255, 255]
 }
 
-function render_field()
+function clear_scene()
 {
-	const universe = simulation_handler.universe
-
-	console.log("universe", universe)
-
 	if (lines)
 		three_js_handler.scene.remove(lines)
 
@@ -61,6 +67,11 @@ function render_field()
 
 	if (points)
 		three_js_handler.scene.remove(points)
+}
+
+function render_field()
+{
+	clear_scene();
 
 	let record_point_count = universe.get_record_point_count();
 	const record_point_ptr = universe.get_record_point_ptr();
@@ -170,11 +181,30 @@ function render_field()
 	// three_js_handler.scene.add(points)
 }
 
+function simulation_objects_update()
+{
+	const list = []
+
+	Object.keys(sim_data).map(object_key => {
+		const sim_object = sim_data[object_key]
+		list.push({"type": "list-button", "name": object_key, "value": sim_object.display_name})
+	})
+
+	ui_loader.explorer.update_list(list)
+}
+
+function add_simulation_object(object_data)
+{
+	
+
+	simulation_objects_update()
+}
+
 function start(current_wasm)
 {
 	wasm = current_wasm
 
-	simulation_handler = new SimulationHandler()
+	universe = Universe.new();
 
 	ui_loader.render()
 	ui_loader.main_content.element.appendChild(three_js_handler.renderer.domElement)
@@ -185,6 +215,14 @@ function start(current_wasm)
 	}
 
 	ui_loader.events.connect("main_content_resize", updateSize)
+
+	sim_data = sim_data_loader.get_data()
+
+	console.log("sim_data", sim_data)
+
+	simulation_objects_update()
+
+
 
 
 	render_field()

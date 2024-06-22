@@ -1,3 +1,5 @@
+@use "./colors.scss" as *;
+
 $tab-width: 5.5vh;
 $tab-color: #ffffff;
 
@@ -22,6 +24,9 @@ body {
     margin: 0px;
     width: 100vw;
     height: 100vh;
+
+    font-family: $font-family;
+    color: $font-color;
 }
 
 .smallborder-horizontal {
@@ -94,6 +99,7 @@ body {
 .bar {
     width: 100%;
     height: $tab-width;
+    min-height: $tab-width;
 
     display: flex;
 }
@@ -164,16 +170,15 @@ body {
     }
 }
 
-.sidebar {
-    height: 100%;
-    width: 15vw;
-}
-
-.minisidebar {
-    height: 100%;
-    width: 3.5vw;
-}
-
 #tab-container {
 	flex: 1;
+}
+
+.item-container {
+    display: flex;
+    // flex: 1;
+}
+
+.ContentList {
+    width: 15vw;
 }
