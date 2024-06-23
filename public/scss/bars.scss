@@ -102,6 +102,8 @@ body {
     min-height: $tab-width;
 
     display: flex;
+
+    background-color: $secondary-color;
 }
 
 .iconbuttongroup {
@@ -181,4 +183,5 @@ body {
 
 .ContentList {
     width: 15vw;
+    background-color: $secondary-color;
 }

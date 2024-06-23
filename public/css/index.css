@@ -74,6 +74,7 @@ body {
   height: 5.5vh;
   min-height: 5.5vh;
   display: flex;
+  background-color: #192229;
 }
 
 .iconbuttongroup {
@@ -134,6 +135,7 @@ body {
 
 .ContentList {
   width: 15vw;
+  background-color: #192229;
 }
 
 .scene-canvas {
