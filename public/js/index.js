@@ -52,6 +52,12 @@ const line_length = 4
 
 const vec_new = Vector3.js_new
 
+function data_update()
+{
+	// TODO: Make it acutally save
+	// DataLoader
+}
+
 function color_array(color)
 {
 	return [color.r*255, color.g*255, color.b*255, 255]
@@ -185,19 +191,26 @@ function simulation_objects_update()
 {
 	const list = []
 
-	Object.keys(sim_data).map(object_key => {
-		const sim_object = sim_data[object_key]
+	Object.keys(sim_data.sim_objects).map(object_key => {
+		const sim_object = sim_data.sim_objects[object_key]
 		list.push({"type": "list-button", "name": object_key, "value": sim_object.display_name})
 	})
 
 	ui_loader.explorer.update_list(list)
 }
 
-function add_simulation_object(object_data)
+function add_simulation_object(object_key)
 {
-	
+	const object_data = sim_data.sim_objects[object_key]
+}
 
+function create_simulation_object(object_data)
+{
+	const key = Bars.createKey()
+	sim_data.sim_objects[key] = object_data
+	data_update()
 	simulation_objects_update()
+	add_simulation_object(key)
 }
 
 function start(current_wasm)

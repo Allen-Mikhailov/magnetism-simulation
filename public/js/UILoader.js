@@ -14,16 +14,24 @@ class UILoader
         this.middle_content = new Bars.HContainer("middle_content")
 
         this.explorer = new Bars.ContentList("explorer")
+        // this.property_manager = 
 
         this.main_content = new Bars.RawContent("main_content")
         this.main_content.setEvents(this.events)
 
+        const middle_vertical = new Bars.VContainer("middle_vertical")
+
+        middle_vertical.addItem(this.tool_bar)
+        middle_vertical.addItem(new Bars.HBorder());
+        middle_vertical.addItem(this.main_content)
+
         this.middle_content.addItem(this.explorer)
-        this.middle_content.addItem(this.main_content)
+        this.middle_content.addItem(new Bars.VBorder())
+        this.middle_content.addItem(middle_vertical)
 
         // Organizing
         this.bars.addItem(this.top_bar)
-        this.bars.addItem(this.tool_bar)
+        this.bars.addItem(new Bars.HBorder());
         this.bars.addItem(this.middle_content)
     }
 

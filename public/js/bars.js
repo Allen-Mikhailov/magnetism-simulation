@@ -247,6 +247,12 @@ class Container
                 element.appendChild(element_container)
                 element_container.appendChild(item_element)
             } else {
+                if (item == null)
+                {
+                    console.warn(`"${this.name}" has a null item`)
+                    return
+                }
+
                 const item_element = item.render()
                 item_element_list.push(item_element)
                 element.appendChild(item_element)
@@ -454,13 +460,15 @@ class ContentList
             const str = GetListItemString(list_item)
             needed_strings[str] = list_item
 
+            let object = this.name_table[str]
             if (this.name_table[str] == undefined)
             {
-                const object = new TYPE_MATCH[list_item.type](list_item.name, this.events, list_item.value)
+                object = new TYPE_MATCH[list_item.type](list_item.name, this.events, list_item.value)
                 this.element.appendChild(object.render())
                 this.name_table[str] = object
             }
 
+            object.update_value(list_item.value)
             this.name_table[str].set_order(i)
         })
 
@@ -500,41 +508,64 @@ class ContentList
 
 export { ContentList }
 
-class PropertyListTypes
-{
-    constructor()
-    {
-        this.types = []
-    }
-
-    add_type(type)
-    {
-        this.types.push(type)
-    }
-}
-
-class PropertyListType
-{
-    constructor()
-    {
-
-    }
-}
-
 class PropertyList extends ContentList
 {
-    constructor(name)
+    constructor(name, data_function)
     {
         super(name)
+        this.data_function = data_function
+        this.data = null
     }
 
-    render_list()
+    set_data_function(data_function)
     {
-        
+        this.data_function = data_function
     }
 
-    
+    update_data(data)
+    {
+        this.data = data
+
+        const list = this.data_function(data)
+        this.update_list(list)
+    }
 }
+
+class StaticItem
+{
+    constructor(_type, id, class_name)
+    {
+        this._type = _type
+        this.id = id
+        this.class_name = class_name
+    }
+
+    render()
+    {
+        this.element = createElement(this._type, this.id, this.class_name)
+        return this.element
+    }
+}
+
+export {StaticItem}
+
+class HBorder extends StaticItem
+{
+    constructor()
+    {
+        super("div", null, "h-border")
+    }
+}
+
+class VBorder extends StaticItem
+{
+    constructor()
+    {
+        super("div", null, "v-border")
+    }
+}
+
+export { HBorder, VBorder }
 
 class Bars
 {

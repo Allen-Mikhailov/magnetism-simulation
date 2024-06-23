@@ -16,20 +16,20 @@ body {
 
 .smallborder-horizontal {
   width: 100%;
-  height: 3px;
+  height: 1px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 .smallborder-horizontal div {
   box-sizing: border-box;
-  border-bottom: #aaa solid 3px;
+  border-bottom: #11141b solid 1px;
   width: 96%;
   height: 100%;
 }
 
 .smallborder-vertical {
-  width: 3px;
+  width: 1px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -38,7 +38,7 @@ body {
 .smallborder-vertical div {
   width: 100%;
   height: 96%;
-  background-color: #aaa;
+  background-color: #11141b;
 }
 
 .h-container {
@@ -136,6 +136,20 @@ body {
 .ContentList {
   width: 15vw;
   background-color: #192229;
+}
+
+.h-border {
+  width: 100%;
+  height: 0px;
+  background-color: #11141b;
+  border-bottom: #11141b solid 1px;
+}
+
+.v-border {
+  height: 100%;
+  width: 0px;
+  background-color: #11141b;
+  border-right: #11141b solid 1px;
 }
 
 /*# sourceMappingURL=bars.css.map */
