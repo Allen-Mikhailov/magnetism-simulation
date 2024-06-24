@@ -1,5 +1,25 @@
 import * as Bars from "./bars.js"
 
+const property_data_functions = {
+    "StraightWire": (data) => {
+        return [
+            {"type": "list-button", "name": "test-header", "value": "Test Thing"}
+        ]
+    }
+}
+
+function property_data_function(data)
+{
+    if (data == null)
+        return []
+    return property_data_functions[data.type](data)
+}
+
+function hwrap()
+{
+    
+}
+
 class UILoader
 {
     constructor()
@@ -14,7 +34,7 @@ class UILoader
         this.middle_content = new Bars.HContainer("middle_content")
 
         this.explorer = new Bars.ContentList("explorer")
-        // this.property_manager = 
+        this.property_manager = new Bars.PropertyList("property_manager", property_data_function)
 
         this.main_content = new Bars.RawContent("main_content")
         this.main_content.setEvents(this.events)
@@ -26,6 +46,8 @@ class UILoader
         middle_vertical.addItem(this.main_content)
 
         this.middle_content.addItem(this.explorer)
+        this.middle_content.addItem(new Bars.VBorder())
+        this.middle_content.addItem(this.property_manager)
         this.middle_content.addItem(new Bars.VBorder())
         this.middle_content.addItem(middle_vertical)
 

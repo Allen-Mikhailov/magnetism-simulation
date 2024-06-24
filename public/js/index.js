@@ -2,6 +2,7 @@ import * as Bars from "./bars.js"
 import UILoader from "./UILoader.js";
 import * as THREE from "./threejs/three.js"
 import ThreeJsHandler from "./ThreeJsHandler.js";
+import * as SimObjectClasses from "./SimulationObjectClasses.js"
 import DataLoader from "./DataLoader.js";
 import { default_simulation_data } from "./default_data.js";
 
@@ -23,6 +24,7 @@ import { StraightWireObj, Vector3Base } from "./SimulationObjectClasses.js";
 const sim_data_loader = new DataLoader("game_data:0.0", default_simulation_data)
 
 let sim_data
+let selected_object
 
 let simulation_objects
 
@@ -202,6 +204,11 @@ function simulation_objects_update()
 function add_simulation_object(object_key)
 {
 	const object_data = sim_data.sim_objects[object_key]
+	const sim_object = SimObjectClasses.load_from_object(object_data)
+
+	sim_object.render()
+
+	simulation_objects[object_key] = sim_object
 }
 
 function create_simulation_object(object_data)
@@ -211,6 +218,12 @@ function create_simulation_object(object_data)
 	data_update()
 	simulation_objects_update()
 	add_simulation_object(key)
+}
+
+function update_selected_object(new_select)
+{
+	selected_object = new_select
+	ui_loader.property_manager.update_data(sim_data.sim_objects[selected_object])
 }
 
 function start(current_wasm)
@@ -231,11 +244,15 @@ function start(current_wasm)
 
 	sim_data = sim_data_loader.get_data()
 
-	console.log("sim_data", sim_data)
-
 	simulation_objects_update()
 
+	ui_loader.explorer.events.connect("list_button_press", (object_key) => {
+		update_selected_object(selected_object == object_key?null:object_key)
+	})
 
+	Object.keys(sim_data.sim_objects).map((key) => {
+		add_simulation_object(key)
+	})
 
 
 	render_field()

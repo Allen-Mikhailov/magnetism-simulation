@@ -400,7 +400,7 @@ class ContentListItemListButton extends ContentListItem
     {
         this.element = createElement("div", null, "ContentListItemButton")
         this.element.onclick = (e) => {
-            this.events.fire(this.name, e)
+            this.events.fire("list_button_press", this.name, e)
         }
         this.update_value(this.value)
         return this.element
@@ -463,7 +463,9 @@ class ContentList
             let object = this.name_table[str]
             if (this.name_table[str] == undefined)
             {
-                object = new TYPE_MATCH[list_item.type](list_item.name, this.events, list_item.value)
+                if (!TYPE_MATCH[list_item.type])
+                    return console.warn(`No list item type "${list_item.type}" found in "${this.name}"`)
+                object = new (TYPE_MATCH[list_item.type])(list_item.name, this.events, list_item.value)
                 this.element.appendChild(object.render())
                 this.name_table[str] = object
             }
@@ -475,12 +477,14 @@ class ContentList
         this.list.map((list_item, i) => {
             const str = GetListItemString(list_item)
 
-            if (needed_strings[str] != undefined)
+            if (needed_strings[str] == undefined)
             {
                 this.name_table[str].destroy()
                 delete this.name_table[str] 
             }
         })
+
+        this.list = new_list
     }
 
     update_values(values) // Values by string type:name
@@ -530,6 +534,8 @@ class PropertyList extends ContentList
         this.update_list(list)
     }
 }
+
+export { PropertyList }
 
 class StaticItem
 {

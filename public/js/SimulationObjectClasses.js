@@ -26,7 +26,7 @@ class Vector3Base
     constructor(x, y, z)
     {
         this.three = new THREE.Vector3(x, y, z)
-        this.rust = new Vector3(x, y, z)
+        this.rust = Vector3.js_new(x, y, z)
         this.is_vector_base = true
     }
 
@@ -67,7 +67,7 @@ class SimulationObject
 
     set_property(property, value)
     {
-
+        this.base[property] = value
     }
 
     update()
@@ -117,7 +117,7 @@ class StraightWireObj extends SimulationObject
 {
     constructor(base)
     {
-        super("StraightWire")
+        super("StraightWire", base)
 
         this.properties = {
             color: 0xff000,
@@ -126,7 +126,11 @@ class StraightWireObj extends SimulationObject
             direction: new Vector3Base(1, 0, 0)
         }
 
-        const universe_object = new StraightWire();
+        const universe_object = StraightWire.new(
+            this.properties.position.rust, 
+            this.properties.direction.rust, 
+            this.properties.position.length
+        );
         this.universe_object = universe_object
         this.container = Container.box_straight_wire(universe_object)
 
@@ -173,7 +177,7 @@ class StraightWireObj extends SimulationObject
 
     set_property(property, value)
     {
-        this.base[property] = value
+        super.set_property(value)
         switch (property)
         {
             case "length":

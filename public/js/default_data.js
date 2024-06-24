@@ -7,8 +7,14 @@ export {default_user_data}
 const default_simulation_data = {
     sim_objects: {
         "test_key": {
-            "type": "StriaghtWire",
-            "display_name": "Test Wire"
+            "type": "StraightWire",
+            "display_name": "Test Wire",
+            "position": {
+                x: 0,
+                y: 0,
+                z: 5
+            },
+            "length": 10
         }
     },
     settings: {}

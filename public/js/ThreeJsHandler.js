@@ -25,6 +25,12 @@ class ThreeJsHandler
 
     start()
     {
+        // cube
+        const geometry = new THREE.BoxGeometry( 1, 1, 1 );
+        const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+        const cube = new THREE.Mesh( geometry, material );
+        this.scene.add( cube );
+
         this.update_canvas_size()
         this.orbit_controls.update();
         this.render_loop()
