@@ -27,7 +27,13 @@ class Vector3Base
     {
         this.three = new THREE.Vector3(x, y, z)
         this.rust = Vector3.js_new(x, y, z)
+        this.base = {x: x, y: y, z: z}
         this.is_vector_base = true
+    }
+
+    set_base(base)
+    {
+        this.base = base
     }
 
     static from_three(v)
@@ -37,8 +43,9 @@ class Vector3Base
 
     set(x, y, z)
     {
+        console.log(this.rust, x, y, z)
         this.three.set(x, y, z)
-        this.rust.set(x, y, z)
+        // this.rust.set(x, y, z)
     }
 
     set_from_three(three)
@@ -131,8 +138,14 @@ class StraightWireObj extends SimulationObject
             this.properties.direction.rust, 
             this.properties.position.length
         );
+
+        this.properties.position.set_base(this.base.position)
+        this.properties.direction.set_base(this.base.direction)
+
         this.universe_object = universe_object
-        this.container = Container.box_straight_wire(universe_object)
+        console.log(this.universe_object)
+        // this.container = Container.box_straight_wire(universe_object)
+        console.log("boxed", this.universe_object)
 
     }
 
@@ -160,6 +173,8 @@ class StraightWireObj extends SimulationObject
     update()
     {
         super.update()
+
+        if (!this.geometry) {return;}
         // Mesh Points
         const points = []
 
@@ -169,7 +184,6 @@ class StraightWireObj extends SimulationObject
 
         points.push(position)
         points.push(position.clone().add(direction.clone().multiplyScalar(length)))
-
         this.geometry.setFromPoints(points)
 
         this.mesh.updateMatrix()
@@ -177,12 +191,15 @@ class StraightWireObj extends SimulationObject
 
     set_property(property, value)
     {
+        console.log("set property", property, value, typeof value)
         super.set_property(value)
         switch (property)
         {
             case "length":
                 this.properties.length = value
-                this.universe_object.set_length(length)
+                this.base.length = value
+                console.log("this.universe_object", this.universe_object)
+                this.universe_object.set_length(value)
                 return UpdateTypes.FIELD
             case "position":
                 this.properties.position.set(value.x, value.y, value.z)
@@ -191,7 +208,7 @@ class StraightWireObj extends SimulationObject
                 this.properties.direction.set(value.x, value.y, value.z)
                 return UpdateTypes.FIELD
         }
-        update()
+        this.update()
     }
 }
 
@@ -204,7 +221,7 @@ const class_strings = {
 
 function load_from_object(obj)
 {
-    const simulation_obj = new class_strings[obj.type]()
+    const simulation_obj = new class_strings[obj.type](obj)
     simulation_obj.from_json(obj)
     return simulation_obj
 }   

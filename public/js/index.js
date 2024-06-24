@@ -206,7 +206,7 @@ function add_simulation_object(object_key)
 	const object_data = sim_data.sim_objects[object_key]
 	const sim_object = SimObjectClasses.load_from_object(object_data)
 
-	sim_object.render()
+	sim_object.render(three_js_handler.scene)
 
 	simulation_objects[object_key] = sim_object
 }
@@ -250,6 +250,7 @@ function start(current_wasm)
 		update_selected_object(selected_object == object_key?null:object_key)
 	})
 
+	simulation_objects = {}
 	Object.keys(sim_data.sim_objects).map((key) => {
 		add_simulation_object(key)
 	})

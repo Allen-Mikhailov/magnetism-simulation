@@ -14,6 +14,11 @@ const default_simulation_data = {
                 y: 0,
                 z: 5
             },
+            "direction": {
+                x: 0,
+                y: 1,
+                z: 0
+            },
             "length": 10
         }
     },
