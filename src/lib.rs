@@ -10,7 +10,7 @@ use std::ptr;
 const PI: f64 = std::f64::consts::PI;
 enum ObjectType {
     StraightWire,
-    V6,
+    Undefined,
 }
 
 #[wasm_bindgen]
@@ -18,9 +18,27 @@ pub struct SimulationObject
 {
     _type: ObjectType,
     active: bool,
+    handle: usize,
     pos: Vector3,
     direction: Vector3,
     length: f64
+}
+
+impl SimulationObject {
+    pub fn new() -> SimulationObject
+    {
+        let pos: Vector3 = Vector3::new(0f64, 0f64, 0f64);
+        let direction: Vector3 = Vector3::new(0f64, 0f64, 0f64);
+        return SimulationObject {
+            _type: ObjectType::Undefined,
+            active: true,
+            handle: 0,
+            pos,
+            direction,
+            length: 0f64,
+
+        }
+    }
 }
 
 pub fn apply_straight_wire(wire: &SimulationObject, pos: &Vector3) -> Vector3
@@ -63,8 +81,9 @@ pub fn apply_straight_wire(wire: &SimulationObject, pos: &Vector3) -> Vector3
 pub struct Universe {
     object_list: Vec<SimulationObject>,
 
-    straight_wires: Vec<SimulationObject>,
+    straight_wires: Vec<usize>,
 
+    record_point_count: usize,
     record_points: Vec<Vector3>,
     record_point_vectors: Vec<Vector3>,
 
@@ -79,15 +98,82 @@ impl Universe {
         let record_point_vectors: Vec<Vector3> = Vec::new();
 
         let object_list: Vec<SimulationObject> = Vec::new();
-        let straight_wires: Vec<SimulationObject> = Vec::new();
+        let straight_wires: Vec<usize> = Vec::new();
         
         return Universe {
             object_list,
             straight_wires,
 
+            record_point_count: 0,
             record_points,
             record_point_vectors,
         }
+    }
+
+    pub fn get_next_handle(&mut self) -> usize
+    {
+        let sim_count: usize = self.object_list.len();
+        for i in 0..sim_count
+        {
+            if self.object_list[i].active == false
+            {
+                return i;
+            }
+        }
+
+        let new_object: SimulationObject = SimulationObject::new();
+        self.object_list.push(new_object);
+
+        return sim_count;
+    }
+
+    pub fn free_handle(&mut self, handle: usize)
+    {
+        self.object_list[handle as usize].active = false;
+
+        match self.object_list[handle as usize]._type
+        {
+            ObjectType::StraightWire => {
+                for i in 0..self.straight_wires.len()
+                {
+                    if self.straight_wires[i] == handle
+                    {
+                        self.straight_wires.remove(i);
+                        break;
+                    }
+                }
+            },
+            ObjectType::Undefined => {
+
+            }
+        }
+    }
+
+    pub fn add_straight_wire(&mut self, pos: Vector3, direction: Vector3, length: f64) -> usize
+    {
+        let handle = self.get_next_handle();
+        self.object_list[handle]._type = ObjectType::StraightWire;
+        self.object_list[handle].pos = pos;
+        self.object_list[handle].direction = direction;
+        self.object_list[handle].length = length;
+
+        return handle;
+    }
+
+    // Value functions
+    pub fn set_object_position(&mut self, handle: usize, position: Vector3)
+    {
+        self.object_list[handle].pos = position;
+    }
+
+    pub fn set_object_direction(&mut self, handle: usize, direction: Vector3)
+    {
+        self.object_list[handle].direction = direction;
+    }
+
+    pub fn set_object_length(&mut self, handle: usize, length: f64)
+    {
+        self.object_list[handle].length = length;
     }
 
 
@@ -96,9 +182,9 @@ impl Universe {
         // for container in self.
         let mut field: Vector3 = Vector3::zero();
 
-        for wire in &self.straight_wires
+        for wire_handle in self.straight_wires.iter()
         {
-            field = field + apply_straight_wire(wire, p);
+            field = field + apply_straight_wire(&self.object_list[*wire_handle], p);
         }
 
         return field;
@@ -114,20 +200,19 @@ impl Universe {
         }
     }
 
-    pub fn get_record_point_ptr(&self) -> * const Vector3
+    pub fn set_record_point_count(&mut self, count: usize) -> * const Vector3
     {
-        // let test = &self.buffer_test;
-        // std::mem::forget(self.buffer_test);
+        self.record_point_count = count;
+        self.record_point_vectors = Vec::new();
+        for i in 0..count
+        {
+            self.record_point_vectors.push(Vector3 {x: 0f64, y: 0f64, z: 0f64})
+        }
         return self.record_points.as_ptr();
     }
 
     pub fn record_point_vectors_ptr(&self) -> * const Vector3
     {
         return self.record_point_vectors.as_ptr();
-    }
-
-    pub fn get_record_point_count(&self) -> usize
-    {
-        return  self.record_points.len();
     }
 }

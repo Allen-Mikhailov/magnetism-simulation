@@ -1,12 +1,8 @@
 import init, { 
     Universe, 
-    Vector3, 
-    RecordPointMatrix, 
-    NoPointArea, 
-    RecordPointSphere, 
-    StraightWire,
-    Container
+    Vector3
 } from "../pkg/magnetism_simulation.js";
+import { Events } from "./bars.js";
 
 import * as THREE from "./threejs/three.js"
 
@@ -21,49 +17,41 @@ function createKey() {
     );
 }
 
-class Vector3Base
+function bool_call(bool, callback)
 {
-    constructor(x, y, z)
-    {
-        this.three = new THREE.Vector3(x, y, z)
-        this.rust = Vector3.js_new(x, y, z)
-        this.base = {x: x, y: y, z: z}
-        this.is_vector_base = true
-    }
-
-    set_base(base)
-    {
-        this.base = base
-    }
-
-    static from_three(v)
-    {
-        return new Vector3Base(v.x, v.y, v.z)
-    }
-
-    set(x, y, z)
-    {
-        console.log(this.rust, x, y, z)
-        this.three.set(x, y, z)
-        // this.rust.set(x, y, z)
-    }
-
-    set_from_three(three)
-    {
-        this.set(three.x, three.y, three.z)
-    }
+    if (bool)
+        callback()
 }
+
+function vec3_from_obj(obj)
+{
+    return Vector3.js_new(obj.x, obj.y, obj.z)
+}
+
+function mulberry32(a) {
+    return function() {
+      let t = a += 0x6D2B79F5;
+      t = Math.imul(t ^ t >>> 15, t | 1);
+      t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    }
+  }
+  
+  const getRand = mulberry32((Math.random()*2**32)>>>0)
 
 export {Vector3Base}
 
 class SimulationObject
 {
-    constructor(object_type, base)
+    constructor(universe, object_type, base)
     {
+        this.universe = universe
         this.type = object_type
         this.base = base
         this.update_callbacks = {}
         this.key = createKey()
+
+        this.local_events = new Events()
     }
     
 
@@ -72,7 +60,7 @@ class SimulationObject
 
     }
 
-    set_property(property, value)
+    set_property(property, value, no_update)
     {
         this.base[property] = value
     }
@@ -120,11 +108,114 @@ class SimulationObject
     // }
 }
 
-class StraightWireObj extends SimulationObject
+class SandProducer extends SimulationObject
 {
-    constructor(base)
+    constructor(universe, _type, base)
     {
-        super("StraightWire", base)
+        super(universe, _type, base)
+        this.produces_sand = true
+        this.points = new Float64Array()
+        this.fields = new Float64Array()
+    }
+
+    update_points()
+    {
+        this.local_events.fire("point_update")
+    }   
+}
+
+class CubePointCloud extends SandProducer
+{
+    constructor(universe, base)
+    {
+        super(universe, "CubePointCloud", bsae)
+    }
+
+    render(scene)
+    {
+        const geometry = new THREE.BoxGeometry( 1, 1, 1 );
+        const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+        const cube = new THREE.Mesh( geometry, material );
+        this.scene.add( cube );
+    }
+
+    update_points()
+    {
+        const point_count = this.base.size.x*this.base.size.y*this.base.size.z
+        this.point_count = point_count
+
+        const point_array = new Float64Array(point_count*3)
+        
+        const x_size = this.base.size.x
+        const y_size = this.base.size.y
+        const z_size = this.base.size.z
+
+        const x_points = this.base.points.x
+        const y_points = this.base.points.y
+        const z_points = this.base.points.z
+
+        let i = 0;
+        for (let x = 0; x < x_points; x++)
+        {
+            const xa = x/(x_points-1)
+            const xp = (xa-0.5)*x_size
+            for (let y = 0; y < y_points; y++)
+            {
+                const ya = y/(y_points-1)
+                const yp = (ya-0.5)*y_size
+                for (let z = 0; z < z_points; z++)
+                {
+                    const za = z/(z_points-1)
+                    const zp = (za-0.5)*z_size
+
+                    point_array[i*3+0] = xp;
+                    point_array[i*3+1] = xp;
+                    point_array[i*3+2] = xp;
+
+                    i++;
+                }
+            }
+        }
+
+        this.point_array = point_array
+        
+
+        super.update_points()
+    }
+
+    update_fields()
+    {
+
+    }
+
+    update()
+    {
+        
+    }
+}
+
+export { CubePointCloud }
+
+class FieldProducer extends SimulationObject
+{
+    constructor(universe, _type, base)
+    {
+        super(universe, _type, base)
+        this.produces_field = true
+    }
+
+    field_update()
+    {
+        this.local_events.fire("field_update")
+    }
+}
+
+class StraightWireObj extends FieldProducer
+{
+    constructor(universe, base)
+    {
+        super(universe, "StraightWire", base)
+        this.produces_field = true
 
         this.properties = {
             color: 0xff000,
@@ -133,19 +224,12 @@ class StraightWireObj extends SimulationObject
             direction: new Vector3Base(1, 0, 0)
         }
 
-        const universe_object = StraightWire.new(
-            this.properties.position.rust, 
-            this.properties.direction.rust, 
-            this.properties.position.length
+        const handle = universe.add_straight_wire(
+            vec3_from_obj(this.base.position),
+            vec3_from_obj(this.base.direction),
+            this.base.length
         );
-
-        this.properties.position.set_base(this.base.position)
-        this.properties.direction.set_base(this.base.direction)
-
-        this.universe_object = universe_object
-        console.log(this.universe_object)
-        // this.container = Container.box_straight_wire(universe_object)
-        console.log("boxed", this.universe_object)
+        this.handle = handle
 
     }
 
@@ -189,26 +273,34 @@ class StraightWireObj extends SimulationObject
         this.mesh.updateMatrix()
     }
 
-    set_property(property, value)
+    set_property(property, value, no_update)
     {
-        console.log("set property", property, value, typeof value)
+        // console.log("set property", property, value, typeof value)
         super.set_property(value)
+
         switch (property)
         {
             case "length":
                 this.properties.length = value
                 this.base.length = value
-                console.log("this.universe_object", this.universe_object)
-                this.universe_object.set_length(value)
-                return UpdateTypes.FIELD
+                this.universe.set_object_length(this.handle, value)
+                bool_call(!no_update, () => this.field_update())
+                break;
+
             case "position":
                 this.properties.position.set(value.x, value.y, value.z)
-                return UpdateTypes.FIELD;
+                this.universe.set_object_position(this.handle, vec3_from_obj(value))
+                bool_call(!no_update, () => this.field_update())
+                break;
+
             case "direction":
                 this.properties.direction.set(value.x, value.y, value.z)
-                return UpdateTypes.FIELD
+                this.universe.set_object_direction(this.handle, vec3_from_obj(value))
+                bool_call(!no_update, () => this.field_update())
+                break;
         }
-        this.update()
+
+        bool_call(!no_update, () => this.update())
     }
 }
 
@@ -216,6 +308,7 @@ export {StraightWireObj}
 
 const class_strings = {
     "StraightWire": StraightWireObj,
+    "CubePointCloud": CubePointCloud
     // "RecordPointMatrix": 
 }
 

@@ -8,12 +8,7 @@ import { default_simulation_data } from "./default_data.js";
 
 import init, { 
     Universe, 
-    Vector3, 
-    RecordPointMatrix, 
-    NoPointArea, 
-    RecordPointSphere, 
-    StraightWire,
-    Container
+    Vector3
 } from "../pkg/magnetism_simulation.js";
 
 import ColorBand from "./ColorBand.js";

@@ -31,6 +31,9 @@ class ThreeJsHandler
         const cube = new THREE.Mesh( geometry, material );
         this.scene.add( cube );
 
+        this.boxes_group = new THREE.Group();
+        this.field_group = new THREE.Group();
+
         this.update_canvas_size()
         this.orbit_controls.update();
         this.render_loop()
