@@ -200,19 +200,25 @@ impl Universe {
         }
     }
 
-    pub fn set_record_point_count(&mut self, count: usize) -> * const Vector3
+    pub fn set_record_point_count(&mut self, count: usize)
     {
         self.record_point_count = count;
+        self.record_points = Vec::new();
         self.record_point_vectors = Vec::new();
         for i in 0..count
         {
-            self.record_point_vectors.push(Vector3 {x: 0f64, y: 0f64, z: 0f64})
+            self.record_points.push(Vector3 {x: 0f64, y: 0f64, z: 0f64});
+            self.record_point_vectors.push(Vector3 {x: 0f64, y: 0f64, z: 0f64});
         }
-        return self.record_points.as_ptr();
     }
 
     pub fn record_point_vectors_ptr(&self) -> * const Vector3
     {
         return self.record_point_vectors.as_ptr();
+    }
+
+    pub fn record_points_ptr(&self) -> * const Vector3
+    {
+        return self.record_points.as_ptr();
     }
 }

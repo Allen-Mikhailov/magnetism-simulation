@@ -28,6 +28,11 @@ function vec3_from_obj(obj)
     return Vector3.js_new(obj.x, obj.y, obj.z)
 }
 
+function color_array(color)
+{
+	return [color.r*255, color.g*255, color.b*255, 255]
+}
+
 function mulberry32(a) {
     return function() {
       let t = a += 0x6D2B79F5;
@@ -52,12 +57,18 @@ class SimulationObject
         this.key = createKey()
 
         this.local_events = new Events()
+        this.wasm = null
     }
     
 
     render(scene)
     {
 
+    }
+
+    set_wasm(wasm)
+    {
+        this.wasm = wasm
     }
 
     set_property(property, value, no_update)
@@ -114,14 +125,90 @@ class SandProducer extends SimulationObject
     {
         super(universe, _type, base)
         this.produces_sand = true
+
+        this.point_count = 0
         this.points = new Float64Array()
         this.fields = new Float64Array()
+        this.field_magnitudes = new Float64Array()
+
+        // Rendering TODO: Switch to Float64 Arrays
+        this.point_array = []
+        this.line_array = []
+        this.cone_array = []
     }
 
     update_points()
     {
         this.local_events.fire("point_update")
+
+        // calculate all fields
+        this.universe.set_record_point_count(this.point_count)
+        const point_array_ptr = this.universe.record_points_ptr()
+        const field_array_ptr = this.universe.record_point_vectors_ptr()
+
+        const rust_point_array = new Float64Array(wasm.mem)
     }   
+
+    draw_fields()
+    {
+        const point_array = this.point_array
+        const line_array = this.line_array
+        const cone_array = this.cone_array
+
+        const point_buffer = this.points
+        const field_buffer = this.fields
+        for (let i = 0; i < this.point_count; i++)
+        {
+            const point = new THREE.Vector3(
+                point_buffer[i*3+0], 
+                point_buffer[i*3+1], 
+                point_buffer[i*3+2]
+            )
+    
+            point_array.push(point)
+            
+            let p1 = point.clone()
+            const p2 = point.clone()
+    
+            const field = new THREE.Vector3(
+                field_buffer[i*3+0], 
+                field_buffer[i*3+1], 
+                field_buffer[i*3+2]
+            )
+
+            if (line_type == "arrow" )
+            {
+                line_array.push(p1.addScaledVector(field,  line_length))
+                line_array.push(p2)
+            } else if (line_type == "sand") {
+                line_array.push(p1.addScaledVector(field,  line_length/2))
+                line_array.push(p2.addScaledVector(field, -line_length/2))
+            } else {
+                console.error("no line type wot", line_type);
+            }
+
+            // const vert = three_js_handler.createCone(p1, field)
+			cone_array.push(...(three_js_handler.createCone(p1, field)))
+        }
+
+        this.point_array = point_array
+        this.line_array = line_array
+        this.cone_array = cone_array
+    }
+
+    color_update(colorband)
+    {
+
+    }
+
+    render()
+    {
+        const line_buffer = new THREE.BufferGeometry()
+        const cone_buffer = new THREE.BufferGeometry()
+        const point_geo_buffer = new THREE.BufferGeometry()
+
+        point_geo_buffer.setFromPoints(point_array)
+    }
 }
 
 class CubePointCloud extends SandProducer
@@ -169,8 +256,8 @@ class CubePointCloud extends SandProducer
                     const zp = (za-0.5)*z_size
 
                     point_array[i*3+0] = xp;
-                    point_array[i*3+1] = xp;
-                    point_array[i*3+2] = xp;
+                    point_array[i*3+1] = yp;
+                    point_array[i*3+2] = zp;
 
                     i++;
                 }
@@ -183,14 +270,9 @@ class CubePointCloud extends SandProducer
         super.update_points()
     }
 
-    update_fields()
-    {
-
-    }
-
     update()
     {
-        
+        super.update()
     }
 }
 

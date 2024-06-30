@@ -26,9 +26,6 @@ let simulation_objects
 let universe
 
 let wasm
-let lines  = null
-let cones  = null
-let points = null
 
 let line_type = "arrow"
 let display_cones = true
@@ -55,22 +52,33 @@ function data_update()
 	// DataLoader
 }
 
-function color_array(color)
+// temp
+const COLOR_BAND_POINTS = 10
+function color_update()
 {
-	return [color.r*255, color.g*255, color.b*255, 255]
+	// TODO switched to a type array-
+	const field_array = []
+
+	function addToArray(value)
+	{
+		field_array.push(value)
+	}
+
+	simulation_objects.map(sim_object => {
+		if (sim_object.produces_sand)
+			sim_object.field_magnitudes.map(addToArray)
+	})
+
+	console.log("color_update: field_array", field_array)
+
+	colorband.compute_scale(field_array, COLOR_BAND_POINTS)
+
+	simulation_objects.map(sim_object => {
+		if (sim_object.produces_sand)
+			sim_object.color_update(colorband)
+	})
 }
 
-function clear_scene()
-{
-	if (lines)
-		three_js_handler.scene.remove(lines)
-
-	if (cones)
-		three_js_handler.scene.remove(cones)
-
-	if (points)
-		three_js_handler.scene.remove(points)
-}
 
 function render_field()
 {
