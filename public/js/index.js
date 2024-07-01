@@ -13,8 +13,6 @@ import init, {
 
 import ColorBand from "./ColorBand.js";
 
-import { StraightWireObj, Vector3Base } from "./SimulationObjectClasses.js";
-
 
 const sim_data_loader = new DataLoader("game_data:0.0", default_simulation_data)
 
@@ -207,7 +205,7 @@ function simulation_objects_update()
 function add_simulation_object(object_key)
 {
 	const object_data = sim_data.sim_objects[object_key]
-	const sim_object = SimObjectClasses.load_from_object(object_data)
+	const sim_object = SimObjectClasses.load_from_object(universe, object_data)
 
 	sim_object.render(three_js_handler.scene)
 
@@ -217,7 +215,7 @@ function add_simulation_object(object_key)
 function create_simulation_object(object_data)
 {
 	const key = Bars.createKey()
-	sim_data.sim_objects[key] = object_data
+	sim_data.sim_objects[key] = load_from_object(object_data)
 	data_update()
 	simulation_objects_update()
 	add_simulation_object(key)

@@ -20,6 +20,26 @@ const default_simulation_data = {
                 z: 0
             },
             "length": 10
+        },
+        "test_key_2": {
+            "display_name": "Test Point Cloud",
+            "type": "CubePointCloud",
+            "position": {
+                x: 0,
+                y: 0,
+                z: 0
+            },
+            "points": {
+                x: 5,
+                y: 5,
+                z: 5
+            },
+            "size": {
+                x: 5,
+                y: 5,
+                z: 5
+            },
+
         }
     },
     settings: {}

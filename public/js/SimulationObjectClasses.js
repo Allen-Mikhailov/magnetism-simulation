@@ -28,6 +28,11 @@ function vec3_from_obj(obj)
     return Vector3.js_new(obj.x, obj.y, obj.z)
 }
 
+function three_vec_from_obj()
+{
+    return new THREE.Vector3(obj.x, obj.y, obj.z)
+}
+
 function color_array(color)
 {
 	return [color.r*255, color.g*255, color.b*255, 255]
@@ -43,8 +48,6 @@ function mulberry32(a) {
   }
   
   const getRand = mulberry32((Math.random()*2**32)>>>0)
-
-export {Vector3Base}
 
 class SimulationObject
 {
@@ -141,12 +144,24 @@ class SandProducer extends SimulationObject
     {
         this.local_events.fire("point_update")
 
+        const point_count = this.point_count
+
         // calculate all fields
         this.universe.set_record_point_count(this.point_count)
         const point_array_ptr = this.universe.record_points_ptr()
         const field_array_ptr = this.universe.record_point_vectors_ptr()
 
-        const rust_point_array = new Float64Array(wasm.mem)
+        const rust_point_array = new Float64Array(wasm.memory.buffer, point_array_ptr, point_count*3)
+        const rust_field_array = new Float64Array(wasm.memory.buffer, field_array_ptr, point_count*3)
+
+        // Filling point arrays
+        rust_point_array.set(this.points, 0)
+        this.universe.compute_record_points()
+
+
+        this.fields = rust_field_array.slice(0, point_count*3)
+
+        draw_fields()
     }   
 
     draw_fields()
@@ -208,6 +223,22 @@ class SandProducer extends SimulationObject
         const point_geo_buffer = new THREE.BufferGeometry()
 
         point_geo_buffer.setFromPoints(point_array)
+
+        const point_material  = new THREE.PointsMaterial({ color: 0xff0000, size: .05})
+        const line_material = new THREE.LineBasicMaterial( { linewidth: .5, vertexColors: true, transparent: false, } );
+        const cone_material = new THREE.MeshBasicMaterial( { vertexColors: true } );
+
+        const points = new THREE.Points(point_geo_buffer, point_material)
+        const lines = new THREE.LineSegments(line_buffer, line_material)
+        const cones = new THREE.Mesh( cone_buffer, cone_material );
+
+        this.points = points
+        this.lines = lines
+        this.cones = cones
+
+        three_js_handler.scene.add(points)
+        three_js_handler.scene.add(lines)
+        three_js_handler.scene.add(cones)
     }
 }
 
@@ -215,7 +246,7 @@ class CubePointCloud extends SandProducer
 {
     constructor(universe, base)
     {
-        super(universe, "CubePointCloud", bsae)
+        super(universe, "CubePointCloud", base)
     }
 
     render(scene)
@@ -228,7 +259,7 @@ class CubePointCloud extends SandProducer
 
     update_points()
     {
-        const point_count = this.base.size.x*this.base.size.y*this.base.size.z
+        const point_count = this.base.points.x*this.base.points.y*this.base.points.z
         this.point_count = point_count
 
         const point_array = new Float64Array(point_count*3)
@@ -264,7 +295,7 @@ class CubePointCloud extends SandProducer
             }
         }
 
-        this.point_array = point_array
+        this.points = point_array
         
 
         super.update_points()
@@ -298,13 +329,6 @@ class StraightWireObj extends FieldProducer
     {
         super(universe, "StraightWire", base)
         this.produces_field = true
-
-        this.properties = {
-            color: 0xff000,
-            length: 5,
-            position: new Vector3Base(0, 0, 0),
-            direction: new Vector3Base(1, 0, 0)
-        }
 
         const handle = universe.add_straight_wire(
             vec3_from_obj(this.base.position),
@@ -344,9 +368,9 @@ class StraightWireObj extends FieldProducer
         // Mesh Points
         const points = []
 
-        const position = this.properties.position.three
-        const direction = this.properties.direction.three
-        const length = this.properties.length
+        const position = three_vec_from_obj(this.base.position)
+        const direction = three_vec_from_obj(this.base.direction)
+        const length = this.base.length
 
         points.push(position)
         points.push(position.clone().add(direction.clone().multiplyScalar(length)))
@@ -363,20 +387,16 @@ class StraightWireObj extends FieldProducer
         switch (property)
         {
             case "length":
-                this.properties.length = value
-                this.base.length = value
                 this.universe.set_object_length(this.handle, value)
                 bool_call(!no_update, () => this.field_update())
                 break;
 
             case "position":
-                this.properties.position.set(value.x, value.y, value.z)
                 this.universe.set_object_position(this.handle, vec3_from_obj(value))
                 bool_call(!no_update, () => this.field_update())
                 break;
 
             case "direction":
-                this.properties.direction.set(value.x, value.y, value.z)
                 this.universe.set_object_direction(this.handle, vec3_from_obj(value))
                 bool_call(!no_update, () => this.field_update())
                 break;
@@ -394,9 +414,9 @@ const class_strings = {
     // "RecordPointMatrix": 
 }
 
-function load_from_object(obj)
+function load_from_object(universe, obj)
 {
-    const simulation_obj = new class_strings[obj.type](obj)
+    const simulation_obj = new class_strings[obj.type](universe, obj)
     simulation_obj.from_json(obj)
     return simulation_obj
 }   

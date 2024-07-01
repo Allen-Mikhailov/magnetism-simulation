@@ -34,7 +34,7 @@ class SimulationHandler
         this.universe.add_object(simulation_object.container)
     }
 
-    remote_object()
+    remove_object()
     {
         this.universe.remove_object(sim_object.container)
     }
