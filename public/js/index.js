@@ -257,7 +257,7 @@ function start(current_wasm)
 	})
 
 
-	render_field()
+	// render_field()
 }
 
 // Startup

@@ -28,7 +28,7 @@ function vec3_from_obj(obj)
     return Vector3.js_new(obj.x, obj.y, obj.z)
 }
 
-function three_vec_from_obj()
+function three_vec_from_obj(obj)
 {
     return new THREE.Vector3(obj.x, obj.y, obj.z)
 }
@@ -254,7 +254,7 @@ class CubePointCloud extends SandProducer
         const geometry = new THREE.BoxGeometry( 1, 1, 1 );
         const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
         const cube = new THREE.Mesh( geometry, material );
-        this.scene.add( cube );
+        scene.add( cube );
     }
 
     update_points()
