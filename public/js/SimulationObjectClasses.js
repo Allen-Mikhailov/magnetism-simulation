@@ -66,7 +66,7 @@ class SimulationObject
 
     render(scene)
     {
-
+        this.rendered = true
     }
 
     set_wasm(wasm)
@@ -144,6 +144,11 @@ class SandProducer extends SimulationObject
     {
         this.local_events.fire("point_update")
 
+        this.field_update()
+    }   
+
+    field_update()
+    {
         const point_count = this.point_count
 
         // calculate all fields
@@ -162,7 +167,7 @@ class SandProducer extends SimulationObject
         this.fields = rust_field_array.slice(0, point_count*3)
 
         draw_fields()
-    }   
+    }
 
     draw_fields()
     {
@@ -209,6 +214,14 @@ class SandProducer extends SimulationObject
         this.point_array = point_array
         this.line_array = line_array
         this.cone_array = cone_array
+
+        if (this.rendered)
+        {
+            
+        }
+        this.point_buffer.setFromPoints(this.point_array)
+        this.line_buffer.setFromPoints(this.line_array)
+        this.cone_buffer.setFromPoints(this.cone_array)
     }
 
     color_update(colorband)
@@ -218,17 +231,24 @@ class SandProducer extends SimulationObject
 
     render()
     {
+        super.render(scene)
+        const point_buffer = new THREE.BufferGeometry()
         const line_buffer = new THREE.BufferGeometry()
         const cone_buffer = new THREE.BufferGeometry()
-        const point_geo_buffer = new THREE.BufferGeometry()
 
-        point_geo_buffer.setFromPoints(point_array)
+        this.point_buffer = point_buffer
+        this.line_buffer = line_buffer
+        this.cone_buffer = cone_buffer
+
+        this.point_buffer.setFromPoints(this.point_array)
+        this.line_buffer.setFromPoints(this.line_array)
+        this.cone_buffer.setFromPoints(this.cone_array)
 
         const point_material  = new THREE.PointsMaterial({ color: 0xff0000, size: .05})
         const line_material = new THREE.LineBasicMaterial( { linewidth: .5, vertexColors: true, transparent: false, } );
         const cone_material = new THREE.MeshBasicMaterial( { vertexColors: true } );
 
-        const points = new THREE.Points(point_geo_buffer, point_material)
+        const points = new THREE.Points(point_buffer, point_material)
         const lines = new THREE.LineSegments(line_buffer, line_material)
         const cones = new THREE.Mesh( cone_buffer, cone_material );
 
@@ -240,7 +260,14 @@ class SandProducer extends SimulationObject
         three_js_handler.scene.add(lines)
         three_js_handler.scene.add(cones)
     }
+
+    update()
+    {
+        this.update_points()
+    }
 }
+
+const CLOUD_OPACITY = .5
 
 class CubePointCloud extends SandProducer
 {
@@ -252,8 +279,16 @@ class CubePointCloud extends SandProducer
     render(scene)
     {
         const geometry = new THREE.BoxGeometry( 1, 1, 1 );
-        const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+        const material = new THREE.MeshBasicMaterial( { color: 0x00ff00, opacity: CLOUD_OPACITY, transparent: true } );
         const cube = new THREE.Mesh( geometry, material );
+
+        material.opacity = CLOUD_OPACITY
+
+        cube.scale.set(this.base.size.x, this.base.size.y, this.base.size.z)
+
+        this.geometry = geometry
+        this.cube = cube
+
         scene.add( cube );
     }
 
@@ -317,9 +352,9 @@ class FieldProducer extends SimulationObject
         this.produces_field = true
     }
 
-    field_update()
+    update_field()
     {
-        this.local_events.fire("field_update")
+        this.local_events.fire("update_field")
     }
 }
 
@@ -341,6 +376,7 @@ class StraightWireObj extends FieldProducer
 
     render(scene)
     {
+        super.render(scene)
         this.scene = scene
         const material = new THREE.LineBasicMaterial({ color: 0xff0000 })
         const geometry = new THREE.BufferGeometry();
@@ -388,17 +424,17 @@ class StraightWireObj extends FieldProducer
         {
             case "length":
                 this.universe.set_object_length(this.handle, value)
-                bool_call(!no_update, () => this.field_update())
+                bool_call(!no_update, () => this.update_field())
                 break;
 
             case "position":
                 this.universe.set_object_position(this.handle, vec3_from_obj(value))
-                bool_call(!no_update, () => this.field_update())
+                bool_call(!no_update, () => this.update_field())
                 break;
 
             case "direction":
                 this.universe.set_object_direction(this.handle, vec3_from_obj(value))
-                bool_call(!no_update, () => this.field_update())
+                bool_call(!no_update, () => this.update_field())
                 break;
         }
 

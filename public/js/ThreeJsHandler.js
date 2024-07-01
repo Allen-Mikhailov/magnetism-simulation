@@ -26,10 +26,13 @@ class ThreeJsHandler
     start()
     {
         // cube
-        const geometry = new THREE.BoxGeometry( 1, 1, 1 );
-        const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-        const cube = new THREE.Mesh( geometry, material );
-        this.scene.add( cube );
+        // const geometry = new THREE.BoxGeometry( 1, 1, 1 );
+        // const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+        // const cube = new THREE.Mesh( geometry, material );
+        // this.scene.add( cube );
+
+        const axis = new THREE.AxesHelper(5)
+        this.scene.add(axis)
 
         this.boxes_group = new THREE.Group();
         this.field_group = new THREE.Group();

@@ -77,6 +77,16 @@ function color_update()
 	})
 }
 
+function field_update()
+{
+	simulation_objects.map(sim_object => {
+		if (sim_object.produces_sand)
+			sim_object.field_update()
+	})
+
+	color_update()
+}
+
 
 function render_field()
 {
@@ -209,6 +219,8 @@ function add_simulation_object(object_key)
 
 	sim_object.render(three_js_handler.scene)
 
+	sim_object.local_events.connect("update_field", field_update)
+
 	simulation_objects[object_key] = sim_object
 }
 
@@ -217,8 +229,8 @@ function create_simulation_object(object_data)
 	const key = Bars.createKey()
 	sim_data.sim_objects[key] = load_from_object(object_data)
 	data_update()
-	simulation_objects_update()
 	add_simulation_object(key)
+	simulation_objects_update()
 }
 
 function update_selected_object(new_select)
@@ -245,8 +257,6 @@ function start(current_wasm)
 
 	sim_data = sim_data_loader.get_data()
 
-	simulation_objects_update()
-
 	ui_loader.explorer.events.connect("list_button_press", (object_key) => {
 		update_selected_object(selected_object == object_key?null:object_key)
 	})
@@ -255,6 +265,10 @@ function start(current_wasm)
 	Object.keys(sim_data.sim_objects).map((key) => {
 		add_simulation_object(key)
 	})
+
+	simulation_objects_update()
+
+	// 
 
 
 	// render_field()
