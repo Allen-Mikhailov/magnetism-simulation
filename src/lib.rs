@@ -157,6 +157,8 @@ impl Universe {
         self.object_list[handle].direction = direction;
         self.object_list[handle].length = length;
 
+        self.straight_wires.push(handle);
+
         return handle;
     }
 
@@ -193,10 +195,10 @@ impl Universe {
     pub fn compute_record_points(&mut self)
     {
         // Assume
-        self.record_point_vectors = Vec::with_capacity(self.record_points.len());
-        for i in 0..self.record_points.len()
+        // self.record_point_vectors = Vec::with_capacity(self.record_points.len());
+        for i in 0..self.record_point_count
         {
-            self.record_point_vectors.push(self.compute_field(&self.record_points[i]));
+            self.record_point_vectors[i] = self.compute_field(&self.record_points[i]);
         }
     }
 

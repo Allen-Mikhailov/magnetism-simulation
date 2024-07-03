@@ -22,8 +22,8 @@ let selected_object
 let simulation_objects
 
 let universe
-
 let wasm
+let world_object
 
 let line_type = "arrow"
 let display_cones = true
@@ -215,9 +215,9 @@ function simulation_objects_update()
 function add_simulation_object(object_key)
 {
 	const object_data = sim_data.sim_objects[object_key]
-	const sim_object = SimObjectClasses.load_from_object(universe, object_data)
+	const sim_object = SimObjectClasses.load_from_object(world_object, object_data)
 
-	sim_object.render(three_js_handler.scene)
+	sim_object.render()
 
 	sim_object.local_events.connect("update_field", field_update)
 
@@ -227,7 +227,7 @@ function add_simulation_object(object_key)
 function create_simulation_object(object_data)
 {
 	const key = Bars.createKey()
-	sim_data.sim_objects[key] = load_from_object(object_data)
+	sim_data.sim_objects[key] = object_data
 	data_update()
 	add_simulation_object(key)
 	simulation_objects_update()
@@ -235,9 +235,21 @@ function create_simulation_object(object_data)
 
 function update_selected_object(new_select)
 {
+	if (selected_object)
+	{
+		simulation_objects[selected_object].selection_update(false)
+	}
+
 	selected_object = new_select
 	ui_loader.property_manager.update_data(sim_data.sim_objects[selected_object])
+
+	if (simulation_objects[selected_object])
+		simulation_objects[selected_object].selection_update(true)
 }
+
+const raycaster = new THREE.Raycaster();
+
+// function
 
 function start(current_wasm)
 {
@@ -248,6 +260,13 @@ function start(current_wasm)
 	ui_loader.render()
 	ui_loader.main_content.element.appendChild(three_js_handler.renderer.domElement)
 	three_js_handler.start()
+
+	world_object = new SimObjectClasses.WorldObject()
+	world_object.wasm = wasm
+	world_object.scene = three_js_handler.scene
+	world_object.three_js_handler = three_js_handler
+	world_object.universe = universe
+	world_object.ui_loader = ui_loader
 
     const updateSize = () => {
 		three_js_handler.update_canvas_size()

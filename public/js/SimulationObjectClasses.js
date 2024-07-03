@@ -3,13 +3,13 @@ import init, {
     Vector3
 } from "../pkg/magnetism_simulation.js";
 import { Events } from "./bars.js";
+import ThreeJsHandler from "./ThreeJsHandler.js";
 
 import * as THREE from "./threejs/three.js"
 
-const UpdateTypes = Object.freeze({
-    POINTS:   Symbol("points"),
-    FIELD:  Symbol("field")
-});
+const DISPLAY_POINTS = true
+const line_type = "sand"
+const line_length = 1
 
 function createKey() {
     return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, c =>
@@ -47,31 +47,60 @@ function mulberry32(a) {
     }
   }
   
-  const getRand = mulberry32((Math.random()*2**32)>>>0)
+const getRand = mulberry32((Math.random()*2**32)>>>0)
+
+class WorldObject
+{
+    constructor()
+    {
+        this.three_js_handler = null
+        this.scene = null
+        this.ui_loader = null
+        this.universe = null
+        this.wasm = null
+    }
+}
+
+export { WorldObject }
 
 class SimulationObject
 {
-    constructor(universe, object_type, base)
+    constructor(world_object, object_type, base)
     {
-        this.universe = universe
+        this.world_object = world_object
         this.type = object_type
         this.base = base
         this.update_callbacks = {}
         this.key = createKey()
 
         this.local_events = new Events()
-        this.wasm = null
+
+        this.selected = false
+    }
+
+    assign_properties()
+    {
+        const self = this
+        Object.keys(this.base).map((key) => {
+            if (key == "type") {return;}
+            self.set_property(key, this.base[key])
+        })
+    }
+
+    selection_update(selected)
+    {
+        this.selected = selected
+
+        // if (this.handle)
+        // {
+            
+        // }
     }
     
 
     render(scene)
     {
         this.rendered = true
-    }
-
-    set_wasm(wasm)
-    {
-        this.wasm = wasm
     }
 
     set_property(property, value, no_update)
@@ -96,15 +125,6 @@ class SimulationObject
 
     }
 
-    from_json(json_object)
-    {
-        const self = this
-        Object.keys(json_object).map((key) => {
-            if (key == "type") {return;}
-            self.set_property(key, json_object[key])
-        })
-    }
-
     // to_json()
     // {
     //     const json_obj = {}
@@ -124,9 +144,9 @@ class SimulationObject
 
 class SandProducer extends SimulationObject
 {
-    constructor(universe, _type, base)
+    constructor(world_object, _type, base)
     {
-        super(universe, _type, base)
+        super(world_object, _type, base)
         this.produces_sand = true
 
         this.point_count = 0
@@ -151,22 +171,25 @@ class SandProducer extends SimulationObject
     {
         const point_count = this.point_count
 
+        const universe = this.world_object.universe
+        const wasm = this.world_object.wasm
+
         // calculate all fields
-        this.universe.set_record_point_count(this.point_count)
-        const point_array_ptr = this.universe.record_points_ptr()
-        const field_array_ptr = this.universe.record_point_vectors_ptr()
+        universe.set_record_point_count(this.point_count)
+        const point_array_ptr = universe.record_points_ptr()
+        const field_array_ptr = universe.record_point_vectors_ptr()
 
         const rust_point_array = new Float64Array(wasm.memory.buffer, point_array_ptr, point_count*3)
-        const rust_field_array = new Float64Array(wasm.memory.buffer, field_array_ptr, point_count*3)
 
         // Filling point arrays
         rust_point_array.set(this.points, 0)
-        this.universe.compute_record_points()
+        universe.compute_record_points()
 
+        const rust_field_array = new Float64Array(wasm.memory.buffer, field_array_ptr, point_count*3)
 
         this.fields = rust_field_array.slice(0, point_count*3)
 
-        draw_fields()
+        this.draw_fields()
     }
 
     draw_fields()
@@ -194,7 +217,7 @@ class SandProducer extends SimulationObject
                 field_buffer[i*3+0], 
                 field_buffer[i*3+1], 
                 field_buffer[i*3+2]
-            )
+            ).normalize()
 
             if (line_type == "arrow" )
             {
@@ -208,20 +231,25 @@ class SandProducer extends SimulationObject
             }
 
             // const vert = three_js_handler.createCone(p1, field)
-			cone_array.push(...(three_js_handler.createCone(p1, field)))
+			cone_array.push(...(ThreeJsHandler.createCone(p1, field)))
         }
 
         this.point_array = point_array
         this.line_array = line_array
         this.cone_array = cone_array
 
+        console.log(line_array)
+
         if (this.rendered)
         {
-            
+            this.point_buffer.setFromPoints(this.point_array)
+            this.line_buffer.setFromPoints(this.line_array)
+            this.cone_buffer.setFromPoints(this.cone_array)
+
+            this.points_mesh.updateMatrix()
+            this.line_buffer.updateMatrix()
+            this.cone_buffer.updateMatrix()
         }
-        this.point_buffer.setFromPoints(this.point_array)
-        this.line_buffer.setFromPoints(this.line_array)
-        this.cone_buffer.setFromPoints(this.cone_array)
     }
 
     color_update(colorband)
@@ -231,7 +259,7 @@ class SandProducer extends SimulationObject
 
     render()
     {
-        super.render(scene)
+        super.render()
         const point_buffer = new THREE.BufferGeometry()
         const line_buffer = new THREE.BufferGeometry()
         const cone_buffer = new THREE.BufferGeometry()
@@ -252,13 +280,17 @@ class SandProducer extends SimulationObject
         const lines = new THREE.LineSegments(line_buffer, line_material)
         const cones = new THREE.Mesh( cone_buffer, cone_material );
 
-        this.points = points
-        this.lines = lines
-        this.cones = cones
+        this.points_mesh = points
+        this.lines_mesh = lines
+        this.cones_mesh = cones
 
-        three_js_handler.scene.add(points)
-        three_js_handler.scene.add(lines)
-        three_js_handler.scene.add(cones)
+        const scene = this.world_object.scene
+        if (!DISPLAY_POINTS)
+            scene.add(points)
+
+
+        scene.add(lines)
+        scene.add(cones)
     }
 
     update()
@@ -267,16 +299,17 @@ class SandProducer extends SimulationObject
     }
 }
 
-const CLOUD_OPACITY = .5
+const CLOUD_OPACITY = .1
 
 class CubePointCloud extends SandProducer
 {
     constructor(universe, base)
     {
         super(universe, "CubePointCloud", base)
+        this.assign_properties()
     }
 
-    render(scene)
+    render()
     {
         const geometry = new THREE.BoxGeometry( 1, 1, 1 );
         const material = new THREE.MeshBasicMaterial( { color: 0x00ff00, opacity: CLOUD_OPACITY, transparent: true } );
@@ -284,12 +317,23 @@ class CubePointCloud extends SandProducer
 
         material.opacity = CLOUD_OPACITY
 
-        cube.scale.set(this.base.size.x, this.base.size.y, this.base.size.z)
-
         this.geometry = geometry
         this.cube = cube
 
-        scene.add( cube );
+        this.world_object.scene.add( cube );
+
+        super.render()
+        this.render_update()
+    }
+
+    render_update()
+    {
+        if (this.rendered)
+        {
+            this.cube.scale.set(this.base.size.x, this.base.size.y, this.base.size.z)
+            this.cube.position.set(this.base.position.x, this.base.position.y, this.base.position.z)    
+            this.cube.updateMatrix()
+        }
     }
 
     update_points()
@@ -298,6 +342,10 @@ class CubePointCloud extends SandProducer
         this.point_count = point_count
 
         const point_array = new Float64Array(point_count*3)
+
+        const x_position = this.base.position.x
+        const y_position = this.base.position.y
+        const z_position = this.base.position.z
         
         const x_size = this.base.size.x
         const y_size = this.base.size.y
@@ -321,9 +369,9 @@ class CubePointCloud extends SandProducer
                     const za = z/(z_points-1)
                     const zp = (za-0.5)*z_size
 
-                    point_array[i*3+0] = xp;
-                    point_array[i*3+1] = yp;
-                    point_array[i*3+2] = zp;
+                    point_array[i*3+0] = xp+x_position;
+                    point_array[i*3+1] = yp+y_position;
+                    point_array[i*3+2] = zp+z_position;
 
                     i++;
                 }
@@ -334,11 +382,57 @@ class CubePointCloud extends SandProducer
         
 
         super.update_points()
+        this.render_update()
+    }
+
+    set_property(property, value, no_update)
+    {
+        // console.log("set property", property, value, typeof value)
+        super.set_property(property, value, no_update)
+
+        let point_update = false
+
+        switch (property)
+        {
+
+            case "position":
+                point_update = true
+                break;
+
+            case "size":
+                point_update = true
+                break;
+
+            case "points":
+                point_update = true
+                break;
+        }
+
+        bool_call(!no_update && point_update, () => this.update_points())
+        bool_call(!no_update, () => this.update())
     }
 
     update()
     {
         super.update()
+    }
+
+    selection_update(selected)
+    {
+        super.selection_update()
+        
+        const three_js_handler = this.world_object.three_js_handler
+
+        if (selected) {
+            console.log("Attach")
+            const self = this
+            three_js_handler.set_controls(this.cube, () => {
+                self
+            })
+        } else {
+            three_js_handler.remove_controls()
+        }
+
     }
 }
 
@@ -346,9 +440,9 @@ export { CubePointCloud }
 
 class FieldProducer extends SimulationObject
 {
-    constructor(universe, _type, base)
+    constructor(world_object, _type, base)
     {
-        super(universe, _type, base)
+        super(world_object, _type, base)
         this.produces_field = true
     }
 
@@ -360,24 +454,25 @@ class FieldProducer extends SimulationObject
 
 class StraightWireObj extends FieldProducer
 {
-    constructor(universe, base)
+    constructor(world_object, base)
     {
-        super(universe, "StraightWire", base)
+        super(world_object, "StraightWire", base)
         this.produces_field = true
 
-        const handle = universe.add_straight_wire(
+        const handle = this.world_object.universe.add_straight_wire(
             vec3_from_obj(this.base.position),
             vec3_from_obj(this.base.direction),
             this.base.length
         );
         this.handle = handle
 
+        this.assign_properties()
+
     }
 
-    render(scene)
+    render()
     {
-        super.render(scene)
-        this.scene = scene
+        super.render()
         const material = new THREE.LineBasicMaterial({ color: 0xff0000 })
         const geometry = new THREE.BufferGeometry();
         const mesh = new THREE.Line(geometry, material)
@@ -388,7 +483,7 @@ class StraightWireObj extends FieldProducer
 
         this.update()
 
-        scene.add(this.mesh)
+        this.world_object.scene.add(this.mesh)
     }
 
     clean_up(scene)
@@ -415,25 +510,30 @@ class StraightWireObj extends FieldProducer
         this.mesh.updateMatrix()
     }
 
+    selection_update(selected)
+    {
+        super.selection_update(selected)
+    }
+
     set_property(property, value, no_update)
     {
         // console.log("set property", property, value, typeof value)
-        super.set_property(value)
+        super.set_property(property, value, no_update)
 
         switch (property)
         {
             case "length":
-                this.universe.set_object_length(this.handle, value)
+                this.world_object.universe.set_object_length(this.handle, value)
                 bool_call(!no_update, () => this.update_field())
                 break;
 
             case "position":
-                this.universe.set_object_position(this.handle, vec3_from_obj(value))
+                this.world_object.universe.set_object_position(this.handle, vec3_from_obj(value))
                 bool_call(!no_update, () => this.update_field())
                 break;
 
             case "direction":
-                this.universe.set_object_direction(this.handle, vec3_from_obj(value))
+                this.world_object.universe.set_object_direction(this.handle, vec3_from_obj(value))
                 bool_call(!no_update, () => this.update_field())
                 break;
         }
@@ -450,10 +550,9 @@ const class_strings = {
     // "RecordPointMatrix": 
 }
 
-function load_from_object(universe, obj)
+function load_from_object(world_object, obj)
 {
-    const simulation_obj = new class_strings[obj.type](universe, obj)
-    simulation_obj.from_json(obj)
+    const simulation_obj = new class_strings[obj.type](world_object, obj)
     return simulation_obj
 }   
 

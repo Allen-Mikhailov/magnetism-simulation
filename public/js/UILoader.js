@@ -5,7 +5,12 @@ const property_data_functions = {
         return [
             {"type": "list-button", "name": "test-header", "value": "Test Thing"}
         ]
-    }
+    },
+    "CubePointCloud": (data) => {
+        return [
+            {"type": "list-button", "name": "test-header", "value": "Test Thing"}
+        ]
+    },
 }
 
 function property_data_function(data)

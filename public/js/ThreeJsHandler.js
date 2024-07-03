@@ -1,5 +1,6 @@
 import * as THREE from "./threejs/three.js"
 import { OrbitControls } from './threejs/addons/controls/OrbitControls.js';
+import { TransformControls } from './threejs/addons/controls/TransformControls.js';
 
 class ThreeJsHandler
 {
@@ -15,7 +16,44 @@ class ThreeJsHandler
         this.renderer = new THREE.WebGLRenderer();
         this.renderer.domElement.className = "scene-canvas"
 
-        this.orbit_controls = new OrbitControls( this.camera, this.renderer.domElement );
+        const orbit_controls = new OrbitControls( this.camera, this.renderer.domElement );
+        const transform_controls = new TransformControls( this.camera, this.renderer.domElement );
+
+        this.orbit_controls = orbit_controls;
+        this.transform_controls = transform_controls;
+
+        this.scene.add(this.transform_controls)
+
+        transform_controls.addEventListener("mouseDown", function(event) {
+            orbit_controls.enabled = false
+        })
+        
+        transform_controls.addEventListener("mouseUp", function(event) {
+            orbit_controls.enabled = true
+        })
+
+        transform_controls.addEventListener("objectChange", function(event) {
+            if (this.transform_update)
+            {
+                this.transform_update()
+            }
+        })
+
+        this.transform_update = null
+
+
+    }
+
+    set_controls(element, update_connection)
+    {
+        this.transform_controls.attach(element)
+        this.transform_update = update_connection
+    }
+
+    remove_controls()
+    {
+        this.transform_controls.detach()
+        this.transform_update = null
     }
 
     render()
@@ -39,6 +77,7 @@ class ThreeJsHandler
 
         this.update_canvas_size()
         this.orbit_controls.update();
+        // this.transform_controls
         this.render_loop()
     }
 
@@ -86,7 +125,7 @@ class ThreeJsHandler
         return line
     }
 
-    createCone(pos, field)
+    static createCone(pos, field)
     {
         const quaternion = new THREE.Quaternion();
         quaternion.setFromUnitVectors( new THREE.Vector3( 0, 1, 0 ), field.clone().normalize() );
