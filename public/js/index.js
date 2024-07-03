@@ -54,32 +54,44 @@ function data_update()
 const COLOR_BAND_POINTS = 10
 function color_update()
 {
-	// TODO switched to a type array-
-	const field_array = []
 
-	function addToArray(value)
-	{
-		field_array.push(value)
-	}
+	const sim_object_keys = Object.keys(simulation_objects)
 
-	simulation_objects.map(sim_object => {
-		if (sim_object.produces_sand)
-			sim_object.field_magnitudes.map(addToArray)
+	let array_length = 0
+
+	// Getting array length
+	sim_object_keys.map(sim_object_key => {
+		const sim_object = simulation_objects[sim_object_key]
+		if (!sim_object.produces_sand) {return;}
+
+		array_length += sim_object.field_magnitudes.length
 	})
 
-	console.log("color_update: field_array", field_array)
+	// Filling array
+	let offset = 0
+	const field_array = new Float64Array(array_length)
+	sim_object_keys.map(sim_object_key => {
+		const sim_object = simulation_objects[sim_object_key]
+		if (!sim_object.produces_sand) {return;}
+
+		field_array.set(sim_object.field_magnitudes, offset)
+		offset += sim_object.field_magnitudes.length
+	})
 
 	colorband.compute_scale(field_array, COLOR_BAND_POINTS)
 
-	simulation_objects.map(sim_object => {
-		if (sim_object.produces_sand)
-			sim_object.color_update(colorband)
+	sim_object_keys.map(sim_object_key => {
+		const sim_object = simulation_objects[sim_object_key]
+		if (!sim_object.produces_sand) {return;}
+			
+		sim_object.color_update(colorband)
 	})
 }
 
 function field_update()
 {
-	simulation_objects.map(sim_object => {
+	Object.keys(simulation_objects).map(sim_object_key => {
+		const sim_object = simulation_objects[sim_object_key]
 		if (sim_object.produces_sand)
 			sim_object.field_update()
 	})
@@ -220,6 +232,7 @@ function add_simulation_object(object_key)
 	sim_object.render()
 
 	sim_object.local_events.connect("update_field", field_update)
+	sim_object.local_events.connect("color_update", color_update)
 
 	simulation_objects[object_key] = sim_object
 }
@@ -286,6 +299,8 @@ function start(current_wasm)
 	})
 
 	simulation_objects_update()
+
+	field_update()
 
 	// 
 

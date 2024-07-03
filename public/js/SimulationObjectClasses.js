@@ -130,22 +130,6 @@ class SimulationObject
     {
 
     }
-
-    // to_json()
-    // {
-    //     const json_obj = {}
-    //     json_obj.type = this.type
-    //     Object.keys(this.properties).map((property) => {
-    //         const value = this.properties[property]
-    //         if (value.is_vector_base)
-    //         {
-    //             json_obj[property] = {x: value.x, y: value.y, z: value.z, is_vector_base: true}
-    //         } else {
-    //             json_obj[property] = value
-    //         }
-    //     })
-    //     return json_obj
-    // }
 }
 
 class SandProducer extends SimulationObject
@@ -174,6 +158,7 @@ class SandProducer extends SimulationObject
         this.local_events.fire("point_update")
 
         this.field_update()
+        this.local_events.fire("color_update")
     }   
 
     field_update()
@@ -184,7 +169,7 @@ class SandProducer extends SimulationObject
         const wasm = this.world_object.wasm
 
         // calculate all fields
-        universe.set_record_point_count(this.point_count)
+        universe.set_record_point_count(point_count)
         const point_array_ptr = universe.record_points_ptr()
         const field_array_ptr = universe.record_point_vectors_ptr()
 
@@ -197,6 +182,19 @@ class SandProducer extends SimulationObject
         const rust_field_array = new Float64Array(wasm.memory.buffer, field_array_ptr, point_count*3)
 
         this.fields = rust_field_array.slice(0, point_count*3)
+
+        // calculating field magnitudes
+        const field_magnitudes = new Float64Array(point_count)
+        for (let i = 0; i < point_count; i++)
+        {
+            field_magnitudes[i] = new THREE.Vector3(
+                rust_field_array[i*3+0], 
+                rust_field_array[i*3+1], 
+                rust_field_array[i*3+2]
+            ).length()
+        }
+
+        this.field_magnitudes = field_magnitudes
 
         this.draw_fields()
     }
@@ -247,7 +245,7 @@ class SandProducer extends SimulationObject
         this.line_array = line_array
         this.cone_array = cone_array
 
-        console.log(line_array)
+        // console.log(line_array)
 
         if (this.rendered)
         {
@@ -263,7 +261,24 @@ class SandProducer extends SimulationObject
 
     color_update(colorband)
     {
+        const field_buffer = this.fields
 
+        const line_colors = []
+        const cone_colors = []
+        for (let i = 0; i < this.point_count; i++)
+        {
+            const field = this.field_magnitudes[i]
+            
+            const color = color_array(colorband.get_color(field))
+            line_colors.push(...color)
+            line_colors.push(...color)
+    
+            for (let i = 0; i < 4*3; i++)
+                cone_colors.push(...color)
+        }
+
+        this.line_buffer.setAttribute('color', new THREE.Uint8BufferAttribute(line_colors, 4, true));
+        this.cone_buffer.setAttribute('color', new THREE.Uint8BufferAttribute(cone_colors, 4, true));
     }
 
     render()
