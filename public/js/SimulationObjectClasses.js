@@ -78,13 +78,19 @@ class SimulationObject
         this.selected = false
     }
 
-    assign_properties()
+    bulk_set_properties(properties)
     {
         const self = this
-        Object.keys(this.base).map((key) => {
+        Object.keys(properties).map((key) => {
             if (key == "type") {return;}
-            self.set_property(key, this.base[key])
+            self.set_property(key, properties[key], false)
         })
+        this.update()
+    }
+
+    assign_properties()
+    {
+        this.bulk_set_properties(this.base)
     }
 
     selection_update(selected)
@@ -158,10 +164,13 @@ class SandProducer extends SimulationObject
         this.point_array = []
         this.line_array = []
         this.cone_array = []
+
+        this.needs_point_update = false
     }
 
     update_points()
     {
+        this.needs_point_update = false
         this.local_events.fire("point_update")
 
         this.field_update()
@@ -194,9 +203,9 @@ class SandProducer extends SimulationObject
 
     draw_fields()
     {
-        const point_array = this.point_array
-        const line_array = this.line_array
-        const cone_array = this.cone_array
+        const point_array = []
+        const line_array = []
+        const cone_array = []
 
         const point_buffer = this.points
         const field_buffer = this.fields
@@ -247,8 +256,8 @@ class SandProducer extends SimulationObject
             this.cone_buffer.setFromPoints(this.cone_array)
 
             this.points_mesh.updateMatrix()
-            this.line_buffer.updateMatrix()
-            this.cone_buffer.updateMatrix()
+            this.lines_mesh.updateMatrix()
+            this.cones_mesh.updateMatrix()
         }
     }
 
@@ -408,6 +417,9 @@ class CubePointCloud extends SandProducer
                 break;
         }
 
+        if (point_update)
+            this.needs_point_update = true
+
         bool_call(!no_update && point_update, () => this.update_points())
         bool_call(!no_update, () => this.update())
     }
@@ -417,6 +429,13 @@ class CubePointCloud extends SandProducer
         super.update()
     }
 
+    bulk_set_properties(bulk)
+    {
+        super.bulk_set_properties(bulk)
+        if (this.needs_point_update)
+            this.update_points()
+    }
+
     selection_update(selected)
     {
         super.selection_update()
@@ -424,10 +443,20 @@ class CubePointCloud extends SandProducer
         const three_js_handler = this.world_object.three_js_handler
 
         if (selected) {
-            console.log("Attach")
             const self = this
             three_js_handler.set_controls(this.cube, () => {
-                self
+                self.bulk_set_properties({
+                    "position": {
+                        x: self.cube.position.x, 
+                        y: self.cube.position.y, 
+                        z: self.cube.position.z
+                    },
+                    "size": {
+                        x: self.cube.scale.x, 
+                        y: self.cube.scale.y, 
+                        z: self.cube.scale.z
+                    },
+                })
             })
         } else {
             three_js_handler.remove_controls()
