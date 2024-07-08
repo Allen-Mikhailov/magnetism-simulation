@@ -1,13 +1,16 @@
 import * as Bars from "./bars.js"
 
+const property_header = {"type": "header", "name": "property_header", "value": "Properties"}
 const property_data_functions = {
     "StraightWire": (data) => {
         return [
+            property_header,
             {"type": "list-button", "name": "test-header", "value": "Test Thing"}
         ]
     },
     "CubePointCloud": (data) => {
         return [
+            property_header,
             {"type": "list-button", "name": "test-header", "value": "Test Thing"}
         ]
     },
@@ -16,7 +19,7 @@ const property_data_functions = {
 function property_data_function(data)
 {
     if (data == null)
-        return []
+        return [property_header]
     return property_data_functions[data.type](data)
 }
 

@@ -8,6 +8,7 @@ $border-width: 1px;
 $border: $border-color solid $border-width;
 $border-spacing: 2%;
 $min-border: 5px;
+$item-height: 3.5vh;
 
 #root {
     width: 100vw;
@@ -198,4 +199,34 @@ body {
     background-color: $border-color;
 
     border-right: $border;
+}
+
+.ContentListItemHeader {
+    height: $item-height;
+    max-width: 100%;
+    display: flex;
+    align-items: center;
+    padding-left: 1em;
+
+    backdrop-filter: brightness(120%);
+    font-weight: bold;
+
+    font-size: 110%;
+}
+
+.ContentListItemButton {
+    height: $item-height;
+    max-width: 100%;
+    display: flex;
+    align-items: center;
+    // justify-content: center;
+    padding-left: 1em;
+
+    &:hover {
+        backdrop-filter: brightness(200%);
+    }
+
+    &.selected {
+        filter: brightness(150%);
+    }
 }

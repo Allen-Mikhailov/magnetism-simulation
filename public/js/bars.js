@@ -359,12 +359,44 @@ class ContentListItem
         this.name = name
         this.events = events
         this.value = value
+        this.list = null
+
+        this.selected = false
+        this.item_string = null
+        this.element = null
     }
 
     render()
     {
         this.element = document.createElement("div")
         return this.element;
+    }
+
+    update_selected(selected)
+    {
+        this.selected = selected
+        if (selected)
+            this.element.classList.add("selected")
+        else
+            this.element.classList.remove("selected")
+    }
+
+    select()
+    {
+        if (this.selected)
+            this.list.update_selected(null)
+        else
+            this.list.update_selected(this.item_string)
+    }
+
+    set_list(list)
+    {
+        this.list = list
+    }
+
+    set_item_string(item_string)
+    {
+        this.item_string = item_string
     }
 
     set_order(order)
@@ -396,11 +428,17 @@ class ContentListItemListButton extends ContentListItem
         this.element.innerText = value
     }
 
+    update_selected(selected)
+    {
+        super.update_selected(selected)
+    }
+
     render()
     {
         this.element = createElement("div", null, "ContentListItemButton")
+        const obj = this
         this.element.onclick = (e) => {
-            this.events.fire("list_button_press", this.name, e)
+            this.events.fire("list_button_press", obj, e)
         }
         this.update_value(this.value)
         return this.element
@@ -424,7 +462,7 @@ class ContentListItemHeader extends ContentListItem
     {
         this.element = createElement("div", null, "ContentListItemHeader")
         this.element.onclick = (e) => {
-            this.events.fire(this.name, e)
+            this.events.fire(this, e)
         }
         this.update_value(this.value)
         return this.element
@@ -451,6 +489,8 @@ class ContentList
         this.events = new Events();
 
         this.element = null
+
+        this.selected = null
     }
 
     update_list(new_list)
@@ -466,6 +506,8 @@ class ContentList
                 if (!TYPE_MATCH[list_item.type])
                     return console.warn(`No list item type "${list_item.type}" found in "${this.name}"`)
                 object = new (TYPE_MATCH[list_item.type])(list_item.name, this.events, list_item.value)
+                object.set_list(this)
+                object.set_item_string(str)
                 this.element.appendChild(object.render())
                 this.name_table[str] = object
             }
@@ -497,6 +539,20 @@ class ContentList
     update_value(key, value)
     {
         this.name_table[key].update_value(value)
+    }
+
+    update_selected(selected)
+    {
+        const last_selected = this.selected
+        this.selected = selected
+        Object.keys(this.name_table).map(item_string => {
+            const item = this.name_table[item_string]
+            if (item_string == last_selected)
+                item.update_selected(false)
+
+            if (item_string == selected)
+                item.update_selected(true)
+        })
     }
 
     render()

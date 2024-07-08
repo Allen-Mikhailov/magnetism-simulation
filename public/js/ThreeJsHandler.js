@@ -72,7 +72,7 @@ class ThreeJsHandler
         // const cube = new THREE.Mesh( geometry, material );
         // this.scene.add( cube );
 
-        const axis = new THREE.AxesHelper(5)
+        const axis = new THREE.AxesHelper(1)
         this.scene.add(axis)
 
         this.boxes_group = new THREE.Group();

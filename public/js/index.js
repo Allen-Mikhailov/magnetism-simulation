@@ -42,8 +42,6 @@ const three_js_handler = new ThreeJsHandler()
 
 const line_length = 4
 
-const vec_new = Vector3.js_new
-
 function data_update()
 {
 	// TODO: Make it acutally save
@@ -214,7 +212,9 @@ function render_field()
 
 function simulation_objects_update()
 {
-	const list = []
+	const list = [
+		{"type": "header", "name": "explorer_header", "value": "Explorer"}
+	]
 
 	Object.keys(sim_data.sim_objects).map(object_key => {
 		const sim_object = sim_data.sim_objects[object_key]
@@ -289,8 +289,9 @@ function start(current_wasm)
 
 	sim_data = sim_data_loader.get_data()
 
-	ui_loader.explorer.events.connect("list_button_press", (object_key) => {
-		update_selected_object(selected_object == object_key?null:object_key)
+	ui_loader.explorer.events.connect("list_button_press", (object, ) => {
+		object.select()
+		update_selected_object(object.selected?object.name:null)
 	})
 
 	simulation_objects = {}
@@ -299,6 +300,7 @@ function start(current_wasm)
 	})
 
 	simulation_objects_update()
+	update_selected_object(null)
 
 	field_update()
 
