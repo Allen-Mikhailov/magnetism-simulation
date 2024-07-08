@@ -15,7 +15,7 @@
     </style>
 </head>
 <body>
-    <input type="range" min="1" max="10" value="5" class="slider" id="color_range">
+    <input type="range" min="0" max="100" value="5" class="slider" id="color_range">
     <div id="slider_display"></div>
     <div id="index_display"></div>
     <div id="color_display" style="width: 50px; height: 50px; position: absolute;"></div>
@@ -32,11 +32,17 @@
         const band = new ColorBand([new THREE.Color(0xff0000), new THREE.Color(0x00ff00), new THREE.Color(0x0000ff)])
 
         const color_bands = 10
+        const input_data = 20
+
+        function range(i) // 0-1
+        {
+            return Math.exp(i*10)
+        }   
 
         const band_array = []
-        for (let i = 0; i < 20; i++)
+        for (let i = 0; i < input_data; i++)
         {
-            band_array.push(i)
+            band_array.push(range(i/(input_data-1)))
         }
         band.compute_scale(band_array, color_bands)
 
@@ -59,9 +65,11 @@
         // Update the current slider value (each time you drag the slider handle)
         slider.oninput = function() {
             slider_display.innerText = this.value;
-            const index = band.get_index(parseFloat(this.value))
-            const color = band.get_color(parseFloat(this.value))
-            index_display.innerText = index
+            const val = range(parseFloat(this.value)/100)
+            const index = band.get_index(val)
+            // console.log(index)
+            const color = band.get_color(val)
+            index_display.innerText = `${val}\n${index}\nr: ${color.r}\ng: ${color.g}\nb: ${color.b}`
             color_display.style.backgroundColor = to_css_color(color)
         }
 

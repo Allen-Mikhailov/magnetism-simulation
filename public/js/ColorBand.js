@@ -5,7 +5,15 @@ const color = new Color(1, 1, 1);
 function sample_array(array, index, apply)
 {
     apply = apply || ((v1, v2, i) =>  v1*i+v2*(1-i))
-    return apply(array[Math.floor(index)], array[Math.ceil(index)], index%1)
+
+    if (index%1 == 0)
+        return array[index]
+
+    try {
+        return apply(array[Math.floor(index)], array[Math.ceil(index)], index%1)
+    } catch(e) {
+        console.log(index, array)
+    }
 }
 
 function color_lerp(v1, v2, i)
@@ -36,7 +44,7 @@ class ColorBand
         array.map((value) => {
             modified_array.push(this.modifier(value))
         })
-        modified_array.sort()
+        modified_array.sort((a, b) => a-b)
 
         // console.log("init", modified_array, points)
 
@@ -56,12 +64,14 @@ class ColorBand
         const modded_value = this.modifier(value)
 
         let index = 0
-        while (index+2 < this.scale.length && modded_value > this.scale[index+1])
+        while (index < this.scale.length-2 && modded_value > this.scale[index+1])
         {
             index++;
         }
 
         let alpha = Math.max(modded_value - this.scale[index], 0)/(this.scale[index+1]-this.scale[index])
+
+        // console.log(alpha)
 
         return index+alpha
     }

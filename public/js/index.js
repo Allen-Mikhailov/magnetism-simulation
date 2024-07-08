@@ -28,10 +28,10 @@ let world_object
 let line_type = "arrow"
 let display_cones = true
 
-const color_range = [
-	new THREE.Color(0xff0000), 
-	new THREE.Color(0x00ff00), 
-	// new THREE.Color(0x0000ff)
+const color_range = [ 
+	new THREE.Color(0x00ff00),
+	new THREE.Color(0xff0000) ,
+	new THREE.Color(0x0000ff)
 ]
 const colorband = new ColorBand(color_range)
 
