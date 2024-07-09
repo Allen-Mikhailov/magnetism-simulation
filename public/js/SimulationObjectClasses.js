@@ -521,6 +521,13 @@ class StraightWireObj extends FieldProducer
         const geometry = new THREE.BufferGeometry();
         const mesh = new THREE.Line(geometry, material)
 
+        const points = []
+        points.push(new THREE.Vector3(0, 0, 0))
+        points.push(new THREE.Vector3(0, 1, 0))
+        geometry.setFromPoints(points)
+
+        mesh.updateMatrix()
+
         this.material = material
         this.geometry = geometry
         this.mesh = mesh
@@ -540,18 +547,18 @@ class StraightWireObj extends FieldProducer
         super.update()
 
         if (!this.geometry) {return;}
-        // Mesh Points
-        const points = []
 
         const position = three_vec_from_obj(this.base.position)
         const direction = three_vec_from_obj(this.base.direction)
         const length = this.base.length
 
-        points.push(position)
-        points.push(position.clone().add(direction.clone().multiplyScalar(length)))
-        this.geometry.setFromPoints(points)
+        this.mesh.position.set(position.x, position.y, position.z)
+        this.mesh.scale.set(1, length, 1)
+        this.mesh.setRotationFromQuaternion(
+            new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction)
+        )
 
-        this.mesh.updateMatrix()
+        // new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction)
     }
 
     selection_update(selected)
@@ -583,6 +590,29 @@ class StraightWireObj extends FieldProducer
         }
 
         bool_call(!no_update, () => this.update())
+    }
+
+    selection_update(selected)
+    {
+        super.selection_update()
+        
+        const three_js_handler = this.world_object.three_js_handler
+
+        if (selected) {
+            const self = this
+            three_js_handler.set_controls(this.mesh, () => {
+                self.bulk_set_properties({
+                    "position": {
+                        x: self.mesh.position.x, 
+                        y: self.mesh.position.y, 
+                        z: self.mesh.position.z
+                    },
+                })
+            })
+        } else {
+            three_js_handler.remove_controls()
+        }
+
     }
 }
 

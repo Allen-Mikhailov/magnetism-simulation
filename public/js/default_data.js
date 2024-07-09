@@ -15,9 +15,9 @@ const default_simulation_data = {
                 z: 5
             },
             "direction": {
-                x: 0,
-                y: 1,
-                z: 0
+                x: Math.SQRT2/2,
+                y: (Math.SQRT2/2)/(Math.SQRT2/2),
+                z: Math.SQRT2/2
             },
             "length": 10
         },
