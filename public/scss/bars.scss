@@ -230,3 +230,28 @@ body {
         filter: brightness(150%);
     }
 }
+
+.ContentListItemStringInput {
+    height: $item-height;
+    max-width: 100%;
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+
+    & .label {
+        padding-right: .5em;
+        padding-left: .5em;
+    }
+
+    & .input {
+        justify-self: end;
+        flex: 1;
+        background-color: transparent;
+        border: none;
+        outline: none;
+
+        padding: none;
+        color: $font-color;
+        font-family: $font-family;
+    }
+}

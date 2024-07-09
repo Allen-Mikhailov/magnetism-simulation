@@ -42,7 +42,7 @@ const default_simulation_data = {
 
         },
         "test_key_3": {
-            "display_name": "Test Point Cloud2 ",
+            "display_name": "Test Point Cloud2",
             "type": "CubePointCloud",
             "position": {
                 x: 0,

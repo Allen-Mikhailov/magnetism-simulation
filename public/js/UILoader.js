@@ -1,16 +1,32 @@
 import * as Bars from "./bars.js"
 
+function create_display_name_item(data)
+{
+    return {
+        "type": "string_input", 
+        "name": "display_name_input", 
+        "value": {
+            "edit": true, 
+            "key": "display_name", 
+            "value": data.display_name, 
+            "label": "Name"
+        }
+    }
+}
+
 const property_header = {"type": "header", "name": "property_header", "value": "Properties"}
 const property_data_functions = {
     "StraightWire": (data) => {
         return [
             property_header,
+            create_display_name_item(data),
             {"type": "list-button", "name": "test-header", "value": "Test Thing"}
         ]
     },
     "CubePointCloud": (data) => {
         return [
             property_header,
+            create_display_name_item(data),
             {"type": "list-button", "name": "test-header", "value": "Test Thing"}
         ]
     },

@@ -445,6 +445,46 @@ class ContentListItemListButton extends ContentListItem
     }
 }
 
+class ContentListItemStringInput extends ContentListItem
+{
+    constructor(name, events, value)
+    {
+        super(name, events, value)
+    }
+
+    update_value(value)
+    {
+        super.update_value(value)
+        this.label.innerText = value.label
+        this.input.value = value.value
+    }
+
+    update_selected(selected)
+    {
+        super.update_selected(selected)
+    }
+
+    render()
+    {
+        this.element = createElement("div", null, "ContentListItemStringInput")
+       
+        this.label = createElement("div", null, "label")
+        this.input = createElement("input", null, "input")
+
+        this.element.appendChild(this.label)
+        // this.element.appendChild(createElement("div", null, "v-border"))
+        this.element.appendChild(this.input)
+
+        this.input.onblur = (e) =>
+        {
+            this.events.fire("set_property", this.value.key, this.input.value)
+        }
+
+        this.update_value(this.value)
+        return this.element
+    }
+}
+
 class ContentListItemHeader extends ContentListItem
 {
     constructor(name, events, label)
@@ -471,7 +511,8 @@ class ContentListItemHeader extends ContentListItem
 
 const TYPE_MATCH = {
     "list-button": ContentListItemListButton,
-    "header": ContentListItemHeader
+    "header": ContentListItemHeader,
+    "string_input": ContentListItemStringInput
 }
 
 function GetListItemString(list_item)

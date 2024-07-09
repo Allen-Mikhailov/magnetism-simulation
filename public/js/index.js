@@ -289,9 +289,18 @@ function start(current_wasm)
 
 	sim_data = sim_data_loader.get_data()
 
-	ui_loader.explorer.events.connect("list_button_press", (object, ) => {
+	ui_loader.explorer.events.connect("list_button_press", (object) => {
 		object.select()
 		update_selected_object(object.selected?object.name:null)
+	})
+
+	ui_loader.property_manager.events.connect("set_property", (key, value) => {
+		console.log("set propery", selected_object, key, value)
+		const sim_object = simulation_objects[selected_object]
+		sim_object.set_property(key, value)
+
+		if (key == "display_name")
+			simulation_objects_update()
 	})
 
 	simulation_objects = {}
