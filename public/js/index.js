@@ -262,7 +262,10 @@ function update_selected_object(new_select)
 
 const raycaster = new THREE.Raycaster();
 
-// function
+function key_down(e)
+{
+	
+}
 
 function start(current_wasm)
 {
@@ -286,6 +289,16 @@ function start(current_wasm)
 	}
 
 	ui_loader.events.connect("main_content_resize", updateSize)
+
+	document.onkeydown = function(e)
+	{
+		if (e.key == "t")
+			three_js_handler.transform_controls.setMode("translate")
+		if (e.key == "s")
+			three_js_handler.transform_controls.setMode("scale")
+		if (e.key == "r")
+			three_js_handler.transform_controls.setMode("rotate")
+	}
 
 	sim_data = sim_data_loader.get_data()
 

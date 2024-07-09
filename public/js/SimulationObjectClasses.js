@@ -557,8 +557,6 @@ class StraightWireObj extends FieldProducer
         this.mesh.setRotationFromQuaternion(
             new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction)
         )
-
-        // new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction)
     }
 
     selection_update(selected)
