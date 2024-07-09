@@ -14,20 +14,62 @@ function create_display_name_item(data)
     }
 }
 
+function create_type_display_item(data)
+{
+    return {
+        "type": "string_input", 
+        "name": "type_display_input", 
+        "value": {
+            "edit": false, 
+            "key": "type", 
+            "value": data.type, 
+            "label": "Type"
+        }
+    }
+}
+
+function create_position_item(data)
+{
+    return {
+        "type": "vector3_input", 
+        "name": "position_input", 
+        "value": {
+            "edit": true, 
+            "key": "position", 
+            "value": data.position, 
+            "label": "Position"
+        }
+    }
+}
+
 const property_header = {"type": "header", "name": "property_header", "value": "Properties"}
 const property_data_functions = {
     "StraightWire": (data) => {
         return [
             property_header,
+            create_type_display_item(data),
             create_display_name_item(data),
-            {"type": "list-button", "name": "test-header", "value": "Test Thing"}
+            create_position_item(data),
+            {
+                "type": "number_input", 
+                "name": "length_input", 
+                "value": {
+                    "edit": true, 
+                    "key": "length", 
+                    "value": data.length, 
+                    "label": "Length"
+                }
+            },
+            // {"type": "list-button", "name": "test-header", "value": "Test Thing"}
         ]
     },
     "CubePointCloud": (data) => {
         return [
             property_header,
+            create_type_display_item(data),
             create_display_name_item(data),
-            {"type": "list-button", "name": "test-header", "value": "Test Thing"}
+            create_position_item(data),
+            // {"type": "list-button", "name": "test-header", "value": "Test Thing"}
         ]
     },
 }

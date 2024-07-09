@@ -233,6 +233,7 @@ function add_simulation_object(object_key)
 
 	sim_object.local_events.connect("update_field", field_update)
 	sim_object.local_events.connect("color_update", color_update)
+	sim_object.local_events.connect("update_properties", update_properties)
 
 	simulation_objects[object_key] = sim_object
 }
@@ -246,6 +247,11 @@ function create_simulation_object(object_data)
 	simulation_objects_update()
 }
 
+function update_properties()
+{
+	ui_loader.property_manager.update_data(sim_data.sim_objects[selected_object])
+}
+
 function update_selected_object(new_select)
 {
 	if (selected_object)
@@ -254,7 +260,7 @@ function update_selected_object(new_select)
 	}
 
 	selected_object = new_select
-	ui_loader.property_manager.update_data(sim_data.sim_objects[selected_object])
+	update_properties()
 
 	if (simulation_objects[selected_object])
 		simulation_objects[selected_object].selection_update(true)
@@ -311,6 +317,7 @@ function start(current_wasm)
 		console.log("set propery", selected_object, key, value)
 		const sim_object = simulation_objects[selected_object]
 		sim_object.set_property(key, value)
+		update_properties()
 
 		if (key == "display_name")
 			simulation_objects_update()

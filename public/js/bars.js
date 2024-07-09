@@ -457,6 +457,11 @@ class ContentListItemStringInput extends ContentListItem
         super.update_value(value)
         this.label.innerText = value.label
         this.input.value = value.value
+
+        if (value.edit)
+            this.input.classList.remove("no-edit")
+        else
+            this.input.classList.add("no-edit")
     }
 
     update_selected(selected)
@@ -475,9 +480,150 @@ class ContentListItemStringInput extends ContentListItem
         // this.element.appendChild(createElement("div", null, "v-border"))
         this.element.appendChild(this.input)
 
-        this.input.onblur = (e) =>
-        {
+        const stop = () => {
             this.events.fire("set_property", this.value.key, this.input.value)
+        }
+
+        this.input.onblur = stop
+        this.input.onkeydown = (e) => {
+            e.stopPropagation()
+            if (e.key == "Enter")
+                stop()
+        }
+
+        this.update_value(this.value)
+        return this.element
+    }
+}
+
+class ContentListItemNumberInput extends ContentListItem
+{
+    constructor(name, events, value)
+    {
+        super(name, events, value)
+    }
+
+    update_value(value)
+    {
+        super.update_value(value)
+        this.label.innerText = value.label
+        this.input.value = value.value
+    }
+
+    update_selected(selected)
+    {
+        super.update_selected(selected)
+    }
+
+    render()
+    {
+        this.element = createElement("div", null, "ContentListItemNumberInput")
+       
+        this.label = createElement("div", null, "label")
+        this.input = createElement("input", null, "input")
+        document.createElement("input").type = "number"
+
+        this.element.appendChild(this.label)
+        // this.element.appendChild(createElement("div", null, "v-border"))
+        this.element.appendChild(this.input)
+
+        const stop = () => {
+            this.events.fire("set_property", this.value.key, this.input.value)
+        }
+
+        this.input.onblur = stop
+        this.input.onkeydown = (e) => {
+            e.stopPropagation()
+            if (e.key == "Enter")
+            {
+                this.input.blur()
+                stop()
+            }
+        }
+
+        this.update_value(this.value)
+        return this.element
+    }
+}
+
+
+const xyz = ["x", "y", "z"]
+class ContentListItemVector3Input extends ContentListItem
+{
+    constructor(name, events, value)
+    {
+        super(name, events, value)
+    }
+
+    update_value(value)
+    {
+        super.update_value(value)
+        this.label.innerText = value.label
+        this.input.value = `${value.value.x}, ${value.value.y}, ${value.value.z}`
+
+        for (let i = 0; i < 3; i++)
+        {
+            this.number_containers[i].input.value = value.value[xyz[i]]
+        }
+    }
+
+    update_selected(selected)
+    {
+        super.update_selected(selected)
+    }
+
+    render()
+    {
+        this.element = createElement("div", null, "ContentListItemVectorInput")
+
+        this.label_container = createElement("div", null, "label-container")
+       
+        this.label = createElement("div", null, "label")
+        this.input = createElement("input", null, "input")
+
+        this.number_container = createElement("div", null, "number-container")
+
+        this.label_container.appendChild(this.label)
+        // this.element.appendChild(createElement("div", null, "v-border"))
+        this.label_container.appendChild(this.input)
+
+        this.element.appendChild(this.label_container)
+        this.element.appendChild(this.number_container)
+
+        this.number_containers = []
+        for (let i = 0; i < 3; i++)
+        {
+            const container = createElement("div", null, "container")
+            const container_label = createElement("div", null, "label")
+            const container_input = createElement("input", null, "input")
+            container_input.type = "number"
+
+            container_label.innerText = xyz[i]
+
+            this.number_containers.push({
+                container: container,
+                label: container_label,
+                input: container_input
+            })
+
+            container.appendChild(container_label)
+            container.appendChild(container_input)
+            this.number_container.appendChild(container)
+        }
+        
+
+        const stop = () => {
+            this.events.fire("set_property", this.value.key, this.input.value)
+        }
+
+        this.input.onblur = stop
+        this.input.onkeydown = (e) => {
+            e.stopPropagation()
+            if (e.key == "Enter")
+            {
+                this.input.blur()
+                stop()
+            }
         }
 
         this.update_value(this.value)
@@ -512,7 +658,9 @@ class ContentListItemHeader extends ContentListItem
 const TYPE_MATCH = {
     "list-button": ContentListItemListButton,
     "header": ContentListItemHeader,
-    "string_input": ContentListItemStringInput
+    "string_input": ContentListItemStringInput,
+    "number_input": ContentListItemNumberInput,
+    "vector3_input": ContentListItemVector3Input
 }
 
 function GetListItemString(list_item)

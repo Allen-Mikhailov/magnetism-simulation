@@ -198,6 +198,34 @@ body {
   color: #707a80;
   font-family: monospace;
 }
+.ContentListItemStringInput .input.no-edit {
+  color: black;
+}
+
+.ContentListItemNumberInput {
+  height: 3.5vh;
+  max-width: 100%;
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+}
+.ContentListItemNumberInput .label {
+  padding-right: 0.5em;
+  padding-left: 0.5em;
+}
+.ContentListItemNumberInput .input {
+  justify-self: end;
+  flex: 1;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  padding: none;
+  color: #707a80;
+  font-family: monospace;
+}
+.ContentListItemNumberInput .input.no-edit {
+  color: black;
+}
 
 .scene-canvas {
   width: 100%;

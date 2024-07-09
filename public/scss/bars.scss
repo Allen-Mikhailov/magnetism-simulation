@@ -231,7 +231,7 @@ body {
     }
 }
 
-.ContentListItemStringInput {
+@mixin ContentListItemTextInput {
     height: $item-height;
     max-width: 100%;
     display: flex;
@@ -253,5 +253,17 @@ body {
         padding: none;
         color: $font-color;
         font-family: $font-family;
+
+        &.no-edit {
+            color: darken($font-color, 50%);
+        }
     }
+}
+
+.ContentListItemStringInput {
+    @include ContentListItemTextInput
+}
+
+.ContentListItemNumberInput {
+    @include ContentListItemTextInput
 }

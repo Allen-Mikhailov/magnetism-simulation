@@ -85,6 +85,7 @@ class SimulationObject
             if (key == "type") {return;}
             self.set_property(key, properties[key], false)
         })
+        this.local_events.fire("update_properties")
         this.update()
     }
 
