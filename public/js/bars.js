@@ -27,6 +27,16 @@ function createKey() {
     );
 }
 
+function float2(val)
+{
+    return Math.round(val*100)/100
+}
+
+function format_vector(vector)
+{
+    return `${float2(vector.x)}, ${float2(vector.y)}, ${float2(vector.z)}`
+} 
+
 class Events
 {
     constructor()
@@ -528,7 +538,7 @@ class ContentListItemNumberInput extends ContentListItem
         this.element.appendChild(this.input)
 
         const stop = () => {
-            this.events.fire("set_property", this.value.key, this.input.value)
+            this.events.fire("set_property", this.value.key, parseFloat(this.input.value))
         }
 
         this.input.onblur = stop
@@ -559,7 +569,7 @@ class ContentListItemVector3Input extends ContentListItem
     {
         super.update_value(value)
         this.label.innerText = value.label
-        this.input.value = `${value.value.x}, ${value.value.y}, ${value.value.z}`
+        this.input.value = format_vector(value.value)
 
         for (let i = 0; i < 3; i++)
         {
@@ -570,6 +580,10 @@ class ContentListItemVector3Input extends ContentListItem
     update_selected(selected)
     {
         super.update_selected(selected)
+    }
+
+    reset_label_input() {
+        this.input.value = format_vector(this.value.value)
     }
 
     render()
@@ -606,6 +620,23 @@ class ContentListItemVector3Input extends ContentListItem
                 input: container_input
             })
 
+            const j = i
+            const stop = () => {
+                const new_value = JSON.parse(JSON.stringify(this.value.value)) // cloning object
+                new_value[xyz[j]] = parseFloat(container_input.value)
+                this.events.fire("set_property", this.value.key, new_value)
+            }
+
+            container_input.onblur = stop
+            container_input.onkeydown = (e) => {
+                e.stopPropagation()
+                if (e.key == "Enter")
+                {
+                    container_input.blur()
+                    stop()
+                }
+        }
+
             container.appendChild(container_label)
             container.appendChild(container_input)
             this.number_container.appendChild(container)
@@ -613,7 +644,22 @@ class ContentListItemVector3Input extends ContentListItem
         
 
         const stop = () => {
-            this.events.fire("set_property", this.value.key, this.input.value)
+            const parsed = this.input.value.replace(" ", "").split(",")
+
+            if (parsed.length != 3)
+                return this.reset_label_input();
+
+            try {
+                const new_value = {}
+                for (let i = 0; i < 3; i++)
+                {
+                    new_value[xyz[i]] = parseFloat(parsed[i])
+                }
+    
+                this.events.fire("set_property", this.value.key, new_value)
+            } catch(e) {
+                this.reset_label_input();
+            }
         }
 
         this.input.onblur = stop

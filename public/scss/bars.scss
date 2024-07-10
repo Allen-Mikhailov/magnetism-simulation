@@ -255,7 +255,8 @@ body {
         font-family: $font-family;
 
         &.no-edit {
-            color: darken($font-color, 50%);
+            color: darken($font-color, 15%);
+            user-select: none;
         }
     }
 }
@@ -266,4 +267,16 @@ body {
 
 .ContentListItemNumberInput {
     @include ContentListItemTextInput
+}
+
+.ContentListItemVectorInput {
+    & .label-container {
+        @include ContentListItemTextInput
+    }
+
+    & .number-container {
+        & .container {
+            @include ContentListItemTextInput
+        }
+    }
 }

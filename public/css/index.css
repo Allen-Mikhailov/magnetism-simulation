@@ -199,7 +199,8 @@ body {
   font-family: monospace;
 }
 .ContentListItemStringInput .input.no-edit {
-  color: black;
+  color: #4c5357;
+  user-select: none;
 }
 
 .ContentListItemNumberInput {
@@ -224,7 +225,59 @@ body {
   font-family: monospace;
 }
 .ContentListItemNumberInput .input.no-edit {
-  color: black;
+  color: #4c5357;
+  user-select: none;
+}
+
+.ContentListItemVectorInput .label-container {
+  height: 3.5vh;
+  max-width: 100%;
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+}
+.ContentListItemVectorInput .label-container .label {
+  padding-right: 0.5em;
+  padding-left: 0.5em;
+}
+.ContentListItemVectorInput .label-container .input {
+  justify-self: end;
+  flex: 1;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  padding: none;
+  color: #707a80;
+  font-family: monospace;
+}
+.ContentListItemVectorInput .label-container .input.no-edit {
+  color: #4c5357;
+  user-select: none;
+}
+.ContentListItemVectorInput .number-container .container {
+  height: 3.5vh;
+  max-width: 100%;
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+}
+.ContentListItemVectorInput .number-container .container .label {
+  padding-right: 0.5em;
+  padding-left: 0.5em;
+}
+.ContentListItemVectorInput .number-container .container .input {
+  justify-self: end;
+  flex: 1;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  padding: none;
+  color: #707a80;
+  font-family: monospace;
+}
+.ContentListItemVectorInput .number-container .container .input.no-edit {
+  color: #4c5357;
+  user-select: none;
 }
 
 .scene-canvas {

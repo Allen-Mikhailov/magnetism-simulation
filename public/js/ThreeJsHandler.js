@@ -35,7 +35,7 @@ class ThreeJsHandler
         const self = this
 
         transform_controls.addEventListener("objectChange", function(event) {
-            console.log("transform_update")
+            // console.log("transform_update")
             if (self.transform_update)
             {
                 self.transform_update()
