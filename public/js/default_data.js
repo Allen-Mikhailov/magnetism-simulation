@@ -47,6 +47,11 @@ const default_simulation_data = {
                 y: 5,
                 z: 5
             },
+            "rotation": {
+                x: 0,
+                y: 0,
+                z: 0
+            }
 
         },
         "test_key_3": {
@@ -67,6 +72,11 @@ const default_simulation_data = {
                 y: 5,
                 z: 5
             },
+            "rotation": {
+                x: 0,
+                y: 0,
+                z: 0
+            }
 
         }
     },

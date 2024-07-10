@@ -383,6 +383,12 @@ class CubePointCloud extends SandProducer
         const y_points = this.base.points.y
         const z_points = this.base.points.z
 
+        const euler = new THREE.Euler(
+            this.base.rotation.x,
+            this.base.rotation.y,
+            this.base.rotation.z
+        )
+
         let i = 0;
         for (let x = 0; x < x_points; x++)
         {
@@ -397,9 +403,12 @@ class CubePointCloud extends SandProducer
                     const za = z/(z_points-1)
                     const zp = (za-0.5)*z_size
 
-                    point_array[i*3+0] = xp+x_position;
-                    point_array[i*3+1] = yp+y_position;
-                    point_array[i*3+2] = zp+z_position;
+                    const pos = new THREE.Vector3(xp, yp, zp)
+                    pos.applyEuler(euler)
+
+                    point_array[i*3+0] = pos.x+x_position;
+                    point_array[i*3+1] = pos.y+y_position;
+                    point_array[i*3+2] = pos.z+z_position;
 
                     i++;
                 }
@@ -434,6 +443,9 @@ class CubePointCloud extends SandProducer
             case "points":
                 point_update = true
                 break;
+            case "rotation":
+                point_update = true
+                break;
         }
 
         if (point_update)
@@ -464,6 +476,7 @@ class CubePointCloud extends SandProducer
         if (selected) {
             const self = this
             three_js_handler.set_controls(this.cube, () => {
+                const rotation = this.cube.rotation
                 self.bulk_set_properties({
                     "position": {
                         x: self.cube.position.x, 
@@ -475,6 +488,11 @@ class CubePointCloud extends SandProducer
                         y: self.cube.scale.y, 
                         z: self.cube.scale.z
                     },
+                    "rotation": {
+                        x: rotation._x, 
+                        y: rotation._y, 
+                        z: rotation._z
+                    }
                 })
             })
         } else {
