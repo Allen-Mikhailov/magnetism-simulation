@@ -255,6 +255,7 @@ body {
   user-select: none;
 }
 .ContentListItemVectorInput .number-container .container {
+  margin-left: 1em;
   height: 3.5vh;
   max-width: 100%;
   display: flex;

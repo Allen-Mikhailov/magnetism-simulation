@@ -1,3 +1,5 @@
+import { Vector3 } from "./threejs/three.js"
+
 const IconTable = {
     "clear":     'url("/imgs/clear.png")',
     "squares":   'url("/imgs/select.png")',
@@ -570,6 +572,11 @@ class ContentListItemVector3Input extends ContentListItem
         return parseFloat(input)
     }
 
+    modify_value(value)
+    {
+        return value
+    }
+
     update_value(value)
     {
         super.update_value(value)
@@ -629,7 +636,7 @@ class ContentListItemVector3Input extends ContentListItem
             const stop = () => {
                 const new_value = JSON.parse(JSON.stringify(this.value.value)) // cloning object
                 new_value[xyz[j]] = this.parseInput(container_input.value)
-                this.events.fire("set_property", this.value.key, new_value)
+                this.events.fire("set_property", this.value.key, this.modify_value(new_value))
             }
 
             container_input.onblur = stop
@@ -661,7 +668,7 @@ class ContentListItemVector3Input extends ContentListItem
                     new_value[xyz[i]] = this.parseInput(parsed[i])
                 }
     
-                this.events.fire("set_property", this.value.key, new_value)
+                this.events.fire("set_property", this.value.key, this.modify_value(new_value))
             } catch(e) {
                 this.reset_label_input();
             }
@@ -695,6 +702,23 @@ class ContentListItemVector3IntegerInput extends ContentListItemVector3Input
     }
 }
 
+class ContentListItemVector3NormalizedInput extends ContentListItemVector3Input
+{
+    constructor(name, events, value)
+    {
+        super(name, events, value)
+    }
+
+    modify_value(value)
+    {
+        const three = new Vector3(value.x, value.y, value.z).normalize()
+        value.x = three.x
+        value.y = three.y
+        value.z = three.z
+        return value
+    }
+}
+
 class ContentListItemHeader extends ContentListItem
 {
     constructor(name, events, label)
@@ -725,7 +749,8 @@ const TYPE_MATCH = {
     "string_input": ContentListItemStringInput,
     "number_input": ContentListItemNumberInput,
     "vector3_input": ContentListItemVector3Input,
-    "vector3_integer_input": ContentListItemVector3IntegerInput
+    "vector3_integer_input": ContentListItemVector3IntegerInput,
+    "vector3_normalized_input": ContentListItemVector3NormalizedInput
 }
 
 function GetListItemString(list_item)

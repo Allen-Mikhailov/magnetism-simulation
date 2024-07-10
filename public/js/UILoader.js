@@ -70,6 +70,20 @@ function create_points_item(data)
     }
 }
 
+function create_direction_item(data)
+{
+    return {
+        "type": "vector3_normalized_input", 
+        "name": "direction_input", 
+        "value": {
+            "edit": true, 
+            "key": "direction", 
+            "value": data.direction, 
+            "label": "Direction"
+        }
+    }
+}
+
 const property_header = {"type": "header", "name": "property_header", "value": "Properties"}
 const property_data_functions = {
     "StraightWire": (data) => {
@@ -88,6 +102,7 @@ const property_data_functions = {
                     "label": "Length"
                 }
             },
+            create_direction_item(data)
             // {"type": "list-button", "name": "test-header", "value": "Test Thing"}
         ]
     },

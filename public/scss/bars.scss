@@ -276,6 +276,7 @@ body {
 
     & .number-container {
         & .container {
+            margin-left: 1em;
             @include ContentListItemTextInput
         }
     }

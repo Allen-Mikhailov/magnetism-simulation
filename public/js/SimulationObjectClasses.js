@@ -556,7 +556,7 @@ class StraightWireObj extends FieldProducer
         const direction = three_vec_from_obj(this.base.direction)
         const length = this.base.length
 
-        this.mesh.position.set(position.x, position.y+.5, position.z)
+        this.mesh.position.set(position.x, position.y, position.z)
         this.mesh.scale.set(1, length, 1)
         this.mesh.setRotationFromQuaternion(
             new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction)

@@ -1,8 +1,16 @@
+import { Vector3 } from "./threejs/three.js"
+
 const default_user_data = {
 
 }
 
 export {default_user_data}
+
+const default_direction = new Vector3(
+    Math.SQRT2/2,
+    (Math.SQRT2/2)/(Math.SQRT2/2),
+    Math.SQRT2/2
+).normalize()
 
 const default_simulation_data = {
     sim_objects: {
@@ -15,9 +23,9 @@ const default_simulation_data = {
                 z: 5
             },
             "direction": {
-                x: Math.SQRT2/2,
-                y: (Math.SQRT2/2)/(Math.SQRT2/2),
-                z: Math.SQRT2/2
+                x: default_direction.x,
+                y: default_direction.y,
+                z: default_direction.z
             },
             "length": 10
         },
