@@ -565,6 +565,11 @@ class ContentListItemVector3Input extends ContentListItem
         super(name, events, value)
     }
 
+    parseInput(input)
+    {
+        return parseFloat(input)
+    }
+
     update_value(value)
     {
         super.update_value(value)
@@ -623,7 +628,7 @@ class ContentListItemVector3Input extends ContentListItem
             const j = i
             const stop = () => {
                 const new_value = JSON.parse(JSON.stringify(this.value.value)) // cloning object
-                new_value[xyz[j]] = parseFloat(container_input.value)
+                new_value[xyz[j]] = this.parseInput(container_input.value)
                 this.events.fire("set_property", this.value.key, new_value)
             }
 
@@ -653,7 +658,7 @@ class ContentListItemVector3Input extends ContentListItem
                 const new_value = {}
                 for (let i = 0; i < 3; i++)
                 {
-                    new_value[xyz[i]] = parseFloat(parsed[i])
+                    new_value[xyz[i]] = this.parseInput(parsed[i])
                 }
     
                 this.events.fire("set_property", this.value.key, new_value)
@@ -674,6 +679,19 @@ class ContentListItemVector3Input extends ContentListItem
 
         this.update_value(this.value)
         return this.element
+    }
+}
+
+class ContentListItemVector3IntegerInput extends ContentListItemVector3Input
+{
+    constructor(name, events, value)
+    {
+        super(name, events, value)
+    }
+
+    parseInput(input)
+    {
+        return Math.round(parseFloat(input))
     }
 }
 
@@ -706,7 +724,8 @@ const TYPE_MATCH = {
     "header": ContentListItemHeader,
     "string_input": ContentListItemStringInput,
     "number_input": ContentListItemNumberInput,
-    "vector3_input": ContentListItemVector3Input
+    "vector3_input": ContentListItemVector3Input,
+    "vector3_integer_input": ContentListItemVector3IntegerInput
 }
 
 function GetListItemString(list_item)

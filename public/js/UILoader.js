@@ -42,6 +42,34 @@ function create_position_item(data)
     }
 }
 
+function create_size_item(data)
+{
+    return {
+        "type": "vector3_input", 
+        "name": "size_input", 
+        "value": {
+            "edit": true, 
+            "key": "size", 
+            "value": data.size, 
+            "label": "Size"
+        }
+    }
+}
+
+function create_points_item(data)
+{
+    return {
+        "type": "vector3_integer_input", 
+        "name": "points_input", 
+        "value": {
+            "edit": true, 
+            "key": "points", 
+            "value": data.points, 
+            "label": "Points"
+        }
+    }
+}
+
 const property_header = {"type": "header", "name": "property_header", "value": "Properties"}
 const property_data_functions = {
     "StraightWire": (data) => {
@@ -68,6 +96,8 @@ const property_data_functions = {
             property_header,
             create_type_display_item(data),
             create_display_name_item(data),
+            create_size_item(data),
+            create_points_item(data),
             create_position_item(data),
             // {"type": "list-button", "name": "test-header", "value": "Test Thing"}
         ]

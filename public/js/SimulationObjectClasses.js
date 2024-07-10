@@ -7,7 +7,8 @@ import ThreeJsHandler from "./ThreeJsHandler.js";
 
 import * as THREE from "./threejs/three.js"
 
-const DISPLAY_POINTS = true
+const DISPLAY_POINTS = false
+const DISPLAY_CONES = false
 const line_type = "sand"
 const line_length = 1
 
@@ -310,12 +311,14 @@ class SandProducer extends SimulationObject
         this.cones_mesh = cones
 
         const scene = this.world_object.scene
-        if (!DISPLAY_POINTS)
+        if (DISPLAY_POINTS)
             scene.add(points)
 
 
         scene.add(lines)
-        scene.add(cones)
+
+        if (DISPLAY_CONES)
+            scene.add(cones)
     }
 
     update()
@@ -553,7 +556,7 @@ class StraightWireObj extends FieldProducer
         const direction = three_vec_from_obj(this.base.direction)
         const length = this.base.length
 
-        this.mesh.position.set(position.x, position.y, position.z)
+        this.mesh.position.set(position.x, position.y+.5, position.z)
         this.mesh.scale.set(1, length, 1)
         this.mesh.setRotationFromQuaternion(
             new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction)
