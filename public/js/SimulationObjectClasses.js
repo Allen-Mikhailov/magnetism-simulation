@@ -729,6 +729,7 @@ class CubicBezierWireApprox extends FieldProducer
         while (this.handles.length > this.base.wires)
         {
             this.world_object.universe.free_handle(this.handles[this.handles.length-1])
+            this.handles.pop()
         }
     }
 
@@ -777,7 +778,18 @@ class CubicBezierWireApprox extends FieldProducer
                 break;
 
             case "position":
-                this.world_object.universe.set_object_position(this.handle, vec3_from_obj(value))
+                bool_call(!no_update, () => this.update_wire())
+                break;
+            case "p1":
+                bool_call(!no_update, () => this.update_wire())
+                break;
+            case "p2":
+                bool_call(!no_update, () => this.update_wire())
+                break;
+            case "p3":
+                bool_call(!no_update, () => this.update_wire())
+                break;
+            case "p4":
                 bool_call(!no_update, () => this.update_wire())
                 break;
         }

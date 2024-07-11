@@ -112,6 +112,20 @@ function create_direction_item(data)
     }
 }
 
+function create_vector3_item(data, key, label)
+{
+    return {
+        "type": "vector3_input", 
+        "name": key+"_input", 
+        "value": {
+            "edit": true, 
+            "key": key, 
+            "value": data[key], 
+            "label": label
+        }
+    }
+}
+
 const property_header = {"type": "header", "name": "property_header", "value": "Properties"}
 const property_data_functions = {
     "StraightWire": (data) => {
@@ -163,6 +177,11 @@ const property_data_functions = {
                     "label": "Wires"
                 }
             },
+            create_vector3_item(data, "p1", "p1"),
+            create_vector3_item(data, "p2", "p2"),
+            create_vector3_item(data, "p3", "p3"),
+            create_vector3_item(data, "p4", "p4")
+
         ]
     }
 }
