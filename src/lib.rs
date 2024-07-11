@@ -21,7 +21,7 @@ pub struct SimulationObject
     handle: usize,
     pos: Vector3,
     direction: Vector3,
-    length: f64
+    length: f64,
 }
 
 impl SimulationObject {
@@ -35,8 +35,7 @@ impl SimulationObject {
             handle: 0,
             pos,
             direction,
-            length: 0f64,
-
+            length: 0f64
         }
     }
 }

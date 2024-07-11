@@ -147,6 +147,24 @@ const property_data_functions = {
             // {"type": "list-button", "name": "test-header", "value": "Test Thing"}
         ]
     },
+    "CubicBezierWireApprox": (data) => {
+        return [
+            property_header,
+            create_type_display_item(data),
+            create_display_name_item(data),
+            create_position_item(data),
+            {
+                "type": "number_input", 
+                "name": "length_input", 
+                "value": {
+                    "edit": true, 
+                    "key": "wires", 
+                    "value": data.wires, 
+                    "label": "Wires"
+                }
+            },
+        ]
+    }
 }
 
 function property_data_function(data)

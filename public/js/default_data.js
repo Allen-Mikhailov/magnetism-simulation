@@ -29,6 +29,36 @@ const default_simulation_data = {
             },
             "length": 10
         },
+        "test_key_4": {
+            "display_name": "Test CubicBezierWireApprox",
+            "type": "CubicBezierWireApprox",
+            "position": {
+                x: 0,
+                y: 0,
+                z: -5
+            },
+            "wires": 20,
+            "p1": {
+                x: 0,
+                y: 0,
+                z: 0
+            },
+            "p2": {
+                x: 10,
+                y: 0,
+                z: 0
+            },
+            "p3": {
+                x: 10,
+                y: 5,
+                z: 0
+            },
+            "p4": {
+                x: 0,
+                y: 5,
+                z: 0
+            },
+        },
         "test_key_2": {
             "display_name": "Test Point Cloud",
             "type": "CubePointCloud",
