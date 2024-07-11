@@ -36,7 +36,8 @@ function three_vec_from_obj(obj)
 
 function color_array(color)
 {
-	return [color.r*255, color.g*255, color.b*255, 255]
+	// return [color.r*255, color.g*255, color.b*255, 255]
+    return [255, 255, 255, (color.r)*255]
 }
 
 function mulberry32(a) {
@@ -309,7 +310,7 @@ class SandProducer extends SimulationObject
         this.cone_buffer.setFromPoints(this.cone_array)
 
         const point_material  = new THREE.PointsMaterial({ color: 0xff0000, size: .05})
-        const line_material = new THREE.LineBasicMaterial( { linewidth: .5, vertexColors: true, transparent: false, } );
+        const line_material = new THREE.LineBasicMaterial( { linewidth: .5, vertexColors: true, transparent: true, } );
         const cone_material = new THREE.MeshBasicMaterial( { vertexColors: true } );
 
         const points = new THREE.Points(point_buffer, point_material)

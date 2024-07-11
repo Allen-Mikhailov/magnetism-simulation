@@ -26,9 +26,9 @@ let wasm
 let world_object
 
 const color_range = [  // Temp
-	new THREE.Color(0x00ff00),
-	new THREE.Color(0xff0000),
-	new THREE.Color(0x0000ff)
+	new THREE.Color(0x000000),
+	new THREE.Color(0x000000),
+	new THREE.Color(0xff0000)
 ]
 const colorband = new ColorBand(color_range)
 
