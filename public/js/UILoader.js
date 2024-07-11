@@ -172,6 +172,16 @@ class UILoader
         this.top_bar = new Bars.Bar("top_bar")
         this.tool_bar = new Bars.Bar("tool_bar")
 
+        const tools_select_group = new Bars.IconButtonSelectGroup("tool_select", this.events)
+        tools_select_group.addButton("select", "squares")
+        tools_select_group.addButton("translate", "transform")
+        tools_select_group.addButton("rotate", "rotate")
+        tools_select_group.addButton("scale", "scale")
+        this.tool_bar.addItem(tools_select_group)
+
+        this.tools_select_group = tools_select_group
+
+
         this.middle_content = new Bars.HContainer("middle_content")
 
         this.explorer = new Bars.ContentList("explorer")

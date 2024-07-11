@@ -25,22 +25,16 @@ let universe
 let wasm
 let world_object
 
-let line_type = "arrow"
-let display_cones = true
-
-const color_range = [ 
-	new THREE.Color(0x00ff00),
-	new THREE.Color(0xff0000) ,
+const color_range = [  // Temp
 	new THREE.Color(0x0000ff),
+	new THREE.Color(0x00ff00),
+	new THREE.Color(0xff0000)
 ]
 const colorband = new ColorBand(color_range)
 
 // Bars Creation
 const ui_loader = new UILoader()
-let simulation_handler
 const three_js_handler = new ThreeJsHandler()
-
-const line_length = 4
 
 function data_update()
 {
@@ -97,119 +91,6 @@ function field_update()
 	color_update()
 }
 
-
-function render_field()
-{
-	clear_scene();
-
-	let record_point_count = universe.get_record_point_count();
-	const record_point_ptr = universe.get_record_point_ptr();
-	const record_point_vectors = universe.record_point_vectors_ptr();
-
-
-	const vertices = []
-	const cone_vertices = []
-
-	const point_buffer = new Float64Array(wasm.memory.buffer, record_point_ptr, record_point_count*3)
-	const field_buffer = new Float64Array(wasm.memory.buffer, record_point_vectors, record_point_count*3)
-	const colors = [];
-	const cone_colors = []
-
-	const point_array = []
-
-	let fields = []
-
-	for (let i = 0; i < record_point_count; i++)
-	{
-		const point = new THREE.Vector3(
-			point_buffer[i*3+0], 
-			point_buffer[i*3+1], 
-			point_buffer[i*3+2]
-		)
-
-		point_array.push(point)
-		
-		let p1 = point.clone()
-		const p2 = point.clone()
-
-		const field = new THREE.Vector3(
-			field_buffer[i*3+0], 
-			field_buffer[i*3+1], 
-			field_buffer[i*3+2]
-		)
-
-		fields.push(field.length())
-
-		field.normalize()
-
-		if (line_type == "arrow" )
-		{
-			vertices.push(p1.addScaledVector(field,  line_length))
-			vertices.push(p2)
-		} else if (line_type == "sand") {
-			vertices.push(p1.addScaledVector(field,  line_length/2))
-			vertices.push(p2.addScaledVector(field, -line_length/2))
-		} else {
-			console.error("no line type wot", line_type);
-		}
-
-		if (display_cones)
-		{
-			const vert = three_js_handler.createCone(p1, field)
-			cone_vertices.push(...vert)
-		}
-	}
-
-	colorband.set_modifier((x) => x)
-	// colorband.set_modifier((x) => Math.log(x+1))
-	colorband.compute_scale(fields, 10)
-
-	console.log(colorband.scale)
-
-	// Colors
-
-	for (let i = 0; i < record_point_count; i++)
-	{
-		const field = new THREE.Vector3(
-			field_buffer[i*3+0], 
-			field_buffer[i*3+1], 
-			field_buffer[i*3+2]
-		).length()
-		
-		const color = color_array(colorband.get_color(field))
-		colors.push(...color)
-		colors.push(...color)
-
-		for (let i = 0; i < 4*3; i++)
-			cone_colors.push(...color)
-	}
-
-	const line_buffer = new THREE.BufferGeometry()
-	const cone_buffer = new THREE.BufferGeometry()
-	const point_geo_buffer = new THREE.BufferGeometry()
-
-	point_geo_buffer.setFromPoints(point_array)
-
-	const point_material  = new THREE.PointsMaterial({ color: 0xff0000, size: .05})
-	points = new THREE.Points(point_geo_buffer, point_material)
-	
-	// line_buffer
-	line_buffer.setAttribute('color', new THREE.Uint8BufferAttribute(colors, 4, true));
-	line_buffer.setFromPoints(vertices)
-	const line_material = new THREE.LineBasicMaterial( { linewidth: .5, vertexColors: true, transparent: false, } );
-	lines = new THREE.LineSegments(line_buffer, line_material)
-
-	cone_buffer.setAttribute('color', new THREE.Uint8BufferAttribute(cone_colors, 4, true));
-	cone_buffer.setFromPoints( cone_vertices );
-	const material = new THREE.MeshBasicMaterial( { vertexColors: true } );
-	cones = new THREE.Mesh( cone_buffer, material );
-
-
-	three_js_handler.scene.add(lines)
-	three_js_handler.scene.add(cones)
-	// three_js_handler.scene.add(points)
-}
-
 function simulation_objects_update()
 {
 	const list = [
@@ -252,25 +133,56 @@ function update_properties()
 	ui_loader.property_manager.update_data(sim_data.sim_objects[selected_object])
 }
 
+let tool_mode = "select"
+let tools_active = false
+
 function update_selected_object(new_select)
 {
-	if (selected_object)
+	if (selected_object && new_select != selected_object)
 	{
-		simulation_objects[selected_object].selection_update(false)
+		simulation_objects[selected_object].selection_update(false, false)
 	}
 
 	selected_object = new_select
 	update_properties()
 
 	if (simulation_objects[selected_object])
-		simulation_objects[selected_object].selection_update(true)
+		simulation_objects[selected_object].selection_update(true, tools_active)
 }
 
 const raycaster = new THREE.Raycaster();
 
+function tool_update()
+{	
+	if (tool_mode != "select")
+	{
+		tools_active = true
+		update_selected_object(selected_object)
+		three_js_handler.transform_controls.setMode(tool_mode)
+	} else {
+		tools_active = false
+		update_selected_object(selected_object)
+	}
+
+	ui_loader.tools_select_group.setSelected(tool_mode)
+}
+
+function set_tool(new_tool)
+{
+	tool_mode = new_tool
+	tool_update()
+}
+
 function key_down(e)
 {
-	
+	if (e.key == "t")
+		set_tool("translate")
+	if (e.key == "s")
+		set_tool("scale")
+	if (e.key == "r")
+		set_tool("rotate")
+	if (e.key == "q")
+		set_tool("select")
 }
 
 function start(current_wasm)
@@ -296,15 +208,7 @@ function start(current_wasm)
 
 	ui_loader.events.connect("main_content_resize", updateSize)
 
-	document.onkeydown = function(e)
-	{
-		if (e.key == "t")
-			three_js_handler.transform_controls.setMode("translate")
-		if (e.key == "s")
-			three_js_handler.transform_controls.setMode("scale")
-		if (e.key == "r")
-			three_js_handler.transform_controls.setMode("rotate")
-	}
+	document.onkeydown = key_down
 
 	sim_data = sim_data_loader.get_data()
 
@@ -312,6 +216,9 @@ function start(current_wasm)
 		object.select()
 		update_selected_object(object.selected?object.name:null)
 	})
+
+	ui_loader.tools_select_group.action = set_tool
+	ui_loader.tools_select_group.setSelected("select")
 
 	ui_loader.property_manager.events.connect("set_property", (key, value) => {
 		console.log("set propery", selected_object, key, value)
@@ -332,11 +239,6 @@ function start(current_wasm)
 	update_selected_object(null)
 
 	field_update()
-
-	// 
-
-
-	// render_field()
 }
 
 // Startup

@@ -472,13 +472,13 @@ class CubePointCloud extends SandProducer
             this.update_points()
     }
 
-    selection_update(selected)
+    selection_update(selected, with_tool)
     {
-        super.selection_update()
+        super.selection_update(selected)
         
         const three_js_handler = this.world_object.three_js_handler
 
-        if (selected) {
+        if (selected && with_tool) {
             const self = this
             three_js_handler.set_controls(this.cube, () => {
                 const rotation = this.cube.rotation
@@ -617,13 +617,13 @@ class StraightWireObj extends FieldProducer
         bool_call(!no_update, () => this.update())
     }
 
-    selection_update(selected)
+    selection_update(selected, with_tool)
     {
         super.selection_update()
         
         const three_js_handler = this.world_object.three_js_handler
 
-        if (selected) {
+        if (selected && with_tool) {
             const self = this
             three_js_handler.set_controls(this.mesh, () => {
                 const direction = new THREE.Vector3(0, 1, 0).applyEuler(this.mesh.rotation)
