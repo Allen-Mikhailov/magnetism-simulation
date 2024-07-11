@@ -32,6 +32,8 @@ const default_simulation_data = {
         "test_key_2": {
             "display_name": "Test Point Cloud",
             "type": "CubePointCloud",
+            "random_seed": 0,
+            "randomness": 0,
             "position": {
                 x: 0,
                 y: 0,
@@ -57,6 +59,8 @@ const default_simulation_data = {
         "test_key_3": {
             "display_name": "Test Point Cloud2",
             "type": "CubePointCloud",
+            "random_seed": 5,
+            "randomness": 0,
             "position": {
                 x: 0,
                 y: 0,

@@ -41,14 +41,14 @@ function color_array(color)
 
 function mulberry32(a) {
     return function() {
-      let t = a += 0x6D2B79F5;
-      t = Math.imul(t ^ t >>> 15, t | 1);
-      t ^= t + Math.imul(t ^ t >>> 7, t | 61);
-      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+        let t = a += 0x6D2B79F5;
+        t = Math.imul(t ^ t >>> 15, t | 1);
+        t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+        return ((t ^ t >>> 14) >>> 0) / 4294967296;
     }
-  }
+}
   
-const getRand = mulberry32((Math.random()*2**32)>>>0)
+
 
 class WorldObject
 {
@@ -369,6 +369,11 @@ class CubePointCloud extends SandProducer
         const point_count = this.base.points.x*this.base.points.y*this.base.points.z
         this.point_count = point_count
 
+        const randomness = this.base.randomness
+
+        const rand_funct = mulberry32((this.base.random_seed)>>>0)
+        const getRand = () => {return (rand_funct()*2-1)*randomness}
+
         const point_array = new Float64Array(point_count*3)
 
         const x_position = this.base.position.x
@@ -406,9 +411,9 @@ class CubePointCloud extends SandProducer
                     const pos = new THREE.Vector3(xp, yp, zp)
                     pos.applyEuler(euler)
 
-                    point_array[i*3+0] = pos.x+x_position;
-                    point_array[i*3+1] = pos.y+y_position;
-                    point_array[i*3+2] = pos.z+z_position;
+                    point_array[i*3+0] = pos.x+x_position+getRand();
+                    point_array[i*3+1] = pos.y+y_position+getRand();
+                    point_array[i*3+2] = pos.z+z_position+getRand();
 
                     i++;
                 }
@@ -621,12 +626,18 @@ class StraightWireObj extends FieldProducer
         if (selected) {
             const self = this
             three_js_handler.set_controls(this.mesh, () => {
+                const direction = new THREE.Vector3(0, 1, 0).applyEuler(this.mesh.rotation)
                 self.bulk_set_properties({
                     "position": {
                         x: self.mesh.position.x, 
                         y: self.mesh.position.y, 
                         z: self.mesh.position.z
                     },
+                    "direction": {
+                        x: direction.x,
+                        y: direction.y,
+                        z: direction.z,
+                    }
                 })
             })
         } else {

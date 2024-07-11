@@ -14,6 +14,34 @@ function create_display_name_item(data)
     }
 }
 
+function create_random_seed_item(data)
+{
+    return {
+        "type": "number_input", 
+        "name": "random_seed_input", 
+        "value": {
+            "edit": true, 
+            "key": "random_seed", 
+            "value": data.random_seed, 
+            "label": "Random Seed"
+        }
+    }
+}
+
+function create_randomness_item(data)
+{
+    return {
+        "type": "number_input", 
+        "name": "randomness_input", 
+        "value": {
+            "edit": true, 
+            "key": "randomness", 
+            "value": data.randomness, 
+            "label": "Randomness"
+        }
+    }
+}
+
 function create_type_display_item(data)
 {
     return {
@@ -114,6 +142,8 @@ const property_data_functions = {
             create_size_item(data),
             create_points_item(data),
             create_position_item(data),
+            create_random_seed_item(data),
+            create_randomness_item(data)
             // {"type": "list-button", "name": "test-header", "value": "Test Thing"}
         ]
     },
