@@ -39,6 +39,14 @@ function format_vector(vector)
     return `${float2(vector.x)}, ${float2(vector.y)}, ${float2(vector.z)}`
 } 
 
+function div_wrap(element, className)
+{
+    const container = document.createElement("div")
+    container.className = className
+    container.appendChild(element)
+    return container
+}
+
 class Events
 {
     constructor()
@@ -488,9 +496,9 @@ class ContentListItemStringInput extends ContentListItem
         this.label = createElement("div", null, "label")
         this.input = createElement("input", null, "input")
 
-        this.element.appendChild(this.label)
+        this.element.appendChild(div_wrap(this.label, "left-item"))
         // this.element.appendChild(createElement("div", null, "v-border"))
-        this.element.appendChild(this.input)
+        this.element.appendChild(div_wrap(this.input, "right-item"))
 
         const stop = () => {
             this.events.fire("set_property", this.value.key, this.input.value)
@@ -535,9 +543,9 @@ class ContentListItemNumberInput extends ContentListItem
         this.input = createElement("input", null, "input")
         document.createElement("input").type = "number"
 
-        this.element.appendChild(this.label)
+        this.element.appendChild(div_wrap(this.label, "left-item"))
         // this.element.appendChild(createElement("div", null, "v-border"))
-        this.element.appendChild(this.input)
+        this.element.appendChild(div_wrap(this.input, "right-item"))
 
         const stop = () => {
             this.events.fire("set_property", this.value.key, parseFloat(this.input.value))
@@ -565,11 +573,27 @@ class ContentListItemVector3Input extends ContentListItem
     constructor(name, events, value)
     {
         super(name, events, value)
+        this.opened = false
     }
 
     parseInput(input)
     {
         return parseFloat(input)
+    }
+
+    set_opened(opened)
+    {
+        this.opened = opened
+
+        if (opened)
+        {   
+            this.number_container.classList.add("selected")
+            this.expand_button.classList.add("selected")
+        } else {
+            this.number_container.classList.remove("selected")
+            this.expand_button.classList.remove("selected")
+        }
+        
     }
 
     modify_value(value)
@@ -603,15 +627,24 @@ class ContentListItemVector3Input extends ContentListItem
         this.element = createElement("div", null, "ContentListItemVectorInput")
 
         this.label_container = createElement("div", null, "label-container")
-       
+        
+        this.expand_button = createElement("div", null, "expand-button")
         this.label = createElement("div", null, "label")
         this.input = createElement("input", null, "input")
 
+        const self = this
+        this.expand_button.onclick = () => {
+            this.set_opened(!this.opened)
+        }
+
         this.number_container = createElement("div", null, "number-container")
 
-        this.label_container.appendChild(this.label)
-        // this.element.appendChild(createElement("div", null, "v-border"))
-        this.label_container.appendChild(this.input)
+        const label_container2 = createElement("div", null, "left-item")
+        label_container2.appendChild(this.expand_button)
+        label_container2.appendChild(this.label)
+
+        this.label_container.appendChild(label_container2)
+        this.label_container.appendChild(div_wrap(this.input, "right-item"))
 
         this.element.appendChild(this.label_container)
         this.element.appendChild(this.number_container)
@@ -649,8 +682,8 @@ class ContentListItemVector3Input extends ContentListItem
                 }
         }
 
-            container.appendChild(container_label)
-            container.appendChild(container_input)
+            container.appendChild(div_wrap(container_label, "left-item"))
+            container.appendChild(div_wrap(container_input, "right-item"))
             this.number_container.appendChild(container)
         }
         
@@ -685,6 +718,7 @@ class ContentListItemVector3Input extends ContentListItem
         }
 
         this.update_value(this.value)
+        this.set_opened(false)
         return this.element
     }
 }

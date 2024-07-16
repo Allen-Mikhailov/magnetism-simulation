@@ -218,6 +218,8 @@ class UILoader
 
         this.tools_select_group = tools_select_group
 
+        this.arrows_toggle = new Bars.IconButton("arrow_toggle", )
+
 
         this.middle_content = new Bars.HContainer("middle_content")
 

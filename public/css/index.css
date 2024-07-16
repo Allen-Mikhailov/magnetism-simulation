@@ -16,20 +16,20 @@ body {
 
 .smallborder-horizontal {
   width: 100%;
-  height: 1px;
+  height: 2px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 .smallborder-horizontal div {
   box-sizing: border-box;
-  border-bottom: #11141b solid 1px;
+  border-bottom: #11141b solid 2px;
   width: 96%;
   height: 100%;
 }
 
 .smallborder-vertical {
-  width: 1px;
+  width: 2px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -124,6 +124,7 @@ body {
 
 .item-container {
   display: flex;
+  position: relative;
 }
 
 .ContentList {
@@ -135,14 +136,14 @@ body {
   width: 100%;
   height: 0px;
   background-color: #11141b;
-  border-bottom: #11141b solid 1px;
+  border-bottom: #11141b solid 2px;
 }
 
 .v-border {
   height: 100%;
   width: 0px;
   background-color: #11141b;
-  border-right: #11141b solid 1px;
+  border-right: #11141b solid 2px;
 }
 
 .ContentListItemHeader {
@@ -154,6 +155,7 @@ body {
   backdrop-filter: brightness(120%);
   font-weight: bold;
   font-size: 110%;
+  border-bottom: #11141b solid 2px;
 }
 
 .ContentListItemButton {
@@ -176,17 +178,21 @@ body {
   display: flex;
   align-items: center;
   flex-direction: row;
+  position: relative;
 }
 .ContentListItemStringInput .label {
-  padding-right: 0.5em;
-  padding-left: 0.5em;
+  margin-left: 0.5em;
+  width: calc(100% - 0.5em);
+  text-overflow: ellipsis;
 }
 .ContentListItemStringInput .input {
-  justify-self: end;
+  text-overflow: ellipsis;
   flex: 1;
   background-color: transparent;
   border: none;
   outline: none;
+  margin-left: 0.5em;
+  width: calc(100% - 0.5em);
   padding: none;
   color: #707a80;
   font-family: monospace;
@@ -202,17 +208,21 @@ body {
   display: flex;
   align-items: center;
   flex-direction: row;
+  position: relative;
 }
 .ContentListItemNumberInput .label {
-  padding-right: 0.5em;
-  padding-left: 0.5em;
+  margin-left: 0.5em;
+  width: calc(100% - 0.5em);
+  text-overflow: ellipsis;
 }
 .ContentListItemNumberInput .input {
-  justify-self: end;
+  text-overflow: ellipsis;
   flex: 1;
   background-color: transparent;
   border: none;
   outline: none;
+  margin-left: 0.5em;
+  width: calc(100% - 0.5em);
   padding: none;
   color: #707a80;
   font-family: monospace;
@@ -228,17 +238,21 @@ body {
   display: flex;
   align-items: center;
   flex-direction: row;
+  position: relative;
 }
 .ContentListItemVectorInput .label-container .label {
-  padding-right: 0.5em;
-  padding-left: 0.5em;
+  margin-left: 0.5em;
+  width: calc(100% - 0.5em);
+  text-overflow: ellipsis;
 }
 .ContentListItemVectorInput .label-container .input {
-  justify-self: end;
+  text-overflow: ellipsis;
   flex: 1;
   background-color: transparent;
   border: none;
   outline: none;
+  margin-left: 0.5em;
+  width: calc(100% - 0.5em);
   padding: none;
   color: #707a80;
   font-family: monospace;
@@ -247,24 +261,30 @@ body {
   color: #4c5357;
   user-select: none;
 }
+.ContentListItemVectorInput .number-container {
+  display: none;
+}
 .ContentListItemVectorInput .number-container .container {
-  margin-left: 1em;
   height: 3.5vh;
   max-width: 100%;
   display: flex;
   align-items: center;
   flex-direction: row;
+  position: relative;
 }
 .ContentListItemVectorInput .number-container .container .label {
-  padding-right: 0.5em;
-  padding-left: 0.5em;
+  margin-left: 0.5em;
+  width: calc(100% - 0.5em);
+  text-overflow: ellipsis;
 }
 .ContentListItemVectorInput .number-container .container .input {
-  justify-self: end;
+  text-overflow: ellipsis;
   flex: 1;
   background-color: transparent;
   border: none;
   outline: none;
+  margin-left: 0.5em;
+  width: calc(100% - 0.5em);
   padding: none;
   color: #707a80;
   font-family: monospace;
@@ -272,6 +292,42 @@ body {
 .ContentListItemVectorInput .number-container .container .input.no-edit {
   color: #4c5357;
   user-select: none;
+}
+.ContentListItemVectorInput .number-container.selected {
+  display: block;
+}
+
+.expand-button {
+  height: 50%;
+  aspect-ratio: 1;
+  margin-left: 0.25em;
+  background-image: url("../imgs/run.png");
+  filter: invert(70%);
+  background-position: center;
+  background-size: contain;
+  rotate: 0deg;
+}
+.expand-button.selected {
+  rotate: 90deg;
+}
+
+.left-item {
+  position: absolute;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  left: 0%;
+  width: calc(40% - 1px);
+  border-right: #11141b solid 2px;
+}
+
+.right-item {
+  position: absolute;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  width: calc(60% - 1px);
+  right: 0%;
 }
 
 .scene-canvas {

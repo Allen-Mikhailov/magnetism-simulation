@@ -3,7 +3,7 @@
 $tab-width: 5.5vh;
 $tab-color: #ffffff;
 
-$border-width: 1px;
+$border-width: 2px;
 
 $border: $border-color solid $border-width;
 $border-spacing: 2%;
@@ -178,6 +178,7 @@ body {
 
 .item-container {
     display: flex;
+    position: relative;
     // flex: 1;
 }
 
@@ -212,6 +213,8 @@ body {
     font-weight: bold;
 
     font-size: 110%;
+
+    border-bottom: $border;
 }
 
 .ContentListItemButton {
@@ -237,18 +240,25 @@ body {
     display: flex;
     align-items: center;
     flex-direction: row;
+    position: relative;
+
+    $margin: .5em;
 
     & .label {
-        padding-right: .5em;
-        padding-left: .5em;
+        margin-left: $margin;
+        width: calc(100% - $margin);
+        text-overflow: ellipsis;
     }
 
     & .input {
-        justify-self: end;
+        text-overflow: ellipsis;
         flex: 1;
         background-color: transparent;
         border: none;
         outline: none;
+        margin-left: $margin;
+
+        width: calc(100% - $margin);
 
         padding: none;
         color: $font-color;
@@ -276,8 +286,53 @@ body {
 
     & .number-container {
         & .container {
-            margin-left: 1em;
+            // margin-left: 1em;
             @include ContentListItemTextInput
         }
+
+        display: none;
+
+        &.selected {
+            display: block;
+        }
+
     }
+}
+
+@mixin item-part {
+    position: absolute;
+    height: 100%;
+    display: flex;
+    align-items: center
+    
+}
+
+.expand-button {
+    height: 50%;
+    aspect-ratio: 1;
+    margin-left: .25em;
+    background-image: url("../imgs/run.png");
+    filter: invert(70%);
+
+    background-position: center;
+    background-size: contain;
+
+    rotate: 0deg;
+
+    &.selected {
+        rotate: 90deg;
+    }
+}
+
+.left-item {
+    @include item-part;
+    left: 0%;
+    width: calc(40% - $border-width/2);
+    border-right: $border;
+}
+
+.right-item {
+    @include item-part;
+    width: calc(60% - $border-width/2);
+    right: 0%;
 }
