@@ -79,23 +79,33 @@ pub fn apply_straight_wire(wire: &SimulationObject, pos: &Vector3) -> Vector3
 #[wasm_bindgen]
 pub struct Universe {
     object_list: Vec<SimulationObject>,
-
     straight_wires: Vec<usize>,
 
     record_point_count: usize,
     record_points: Vec<Vector3>,
     record_point_vectors: Vec<Vector3>,
 
-
+    field_line_count: usize,
+    field_line_max_points: usize,
+    field_line_start_points: Vec<Vector3>,
+    field_lines: Vec<Vector3>,
+    field_line_polarities: Vec<f64>
 }
 
 /// Public methods, exported to JavaScript.
 #[wasm_bindgen]
 impl Universe {
     pub fn new() -> Universe {
+        // Sand
         let record_points = Vec::new();
         let record_point_vectors: Vec<Vector3> = Vec::new();
 
+        // Lines
+        let field_line_start_points: Vec<Vector3> = Vec::new();
+        let field_lines: Vec<Vector3> = Vec::new();
+        let field_line_polarities: Vec<f64> = Vec::new();
+
+        // Objects
         let object_list: Vec<SimulationObject> = Vec::new();
         let straight_wires: Vec<usize> = Vec::new();
         
@@ -106,6 +116,12 @@ impl Universe {
             record_point_count: 0,
             record_points,
             record_point_vectors,
+
+            field_line_count: 0,
+            field_line_max_points: 0,
+            field_line_start_points,
+            field_lines,
+            field_line_polarities
         }
     }
 
@@ -221,5 +237,20 @@ impl Universe {
     pub fn record_points_ptr(&self) -> * const Vector3
     {
         return self.record_points.as_ptr();
+    }
+
+    pub fn compute_line(&mut self, p: &Vector3)
+    {
+
+    }
+
+    pub fn compute_lines(&mut self)
+    {
+        
+    }
+
+    pub fn set_lines_count(lines: u32, max_line_size: u32)
+    {
+
     }
 }

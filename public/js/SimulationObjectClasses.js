@@ -168,7 +168,7 @@ class SandProducer extends SimulationObject
     update_points()
     {
         this.needs_point_update = false
-        this.local_events.fire("point_update")
+        this.local_events.fire("point_update") // doesnt do anything rn
 
         this.field_update()
         this.local_events.fire("color_update")
@@ -520,6 +520,59 @@ class CubePointCloud extends SandProducer
 
 export { CubePointCloud }
 
+class FieldLineProducer extends SimulationObject
+{
+    constructor(world_object, _type, base)
+    {
+        super(world_object, _type, base)
+        this.produces_field_lines = true
+
+        this.start_point_count = 0
+        this.start_points = new Float64Array(0)
+    }
+
+    update_field_line_points()
+    {
+        const max_line_point_count = this.base.max_line_point_count
+        const line_points = []
+        for (let i = 0; i < max_line_point_count; i++)
+        {
+            
+        }
+    }
+
+    render()
+    {
+        const geometry = new THREE.BufferGeometry();
+        const material = new THREE.LineBasicMaterial({color: 0xffffff})
+        const lines_mesh = new THREE.Line(geometry, material)
+
+        this.geometry = geometry
+        this.lines_mesh = lines_mesh
+
+        this.world_object.scene.add(lines_mesh)
+        this.update_field_line_points()
+    }
+}
+
+class FieldLinePoint extends FieldLineProducer
+{
+    constructor(world_object, _type, base)
+    {
+        super(world_object, _type, base)
+    }
+
+    update_field_line_points()
+    {
+        this.start_point_count = 1
+        this.start_points = new Float64Array(1*3)
+        this.start_points[0] = this.base.position.x
+        this.start_points[1] = this.base.position.y
+        this.start_points[2] = this.base.position.z
+        super.update_field_line_points()
+    }
+}
+
 class FieldProducer extends SimulationObject
 {
     constructor(world_object, _type, base)
@@ -831,7 +884,8 @@ class CubicBezierWireApprox extends FieldProducer
 const class_strings = {
     "StraightWire": StraightWireObj,
     "CubePointCloud": CubePointCloud,
-    "CubicBezierWireApprox": CubicBezierWireApprox
+    "CubicBezierWireApprox": CubicBezierWireApprox,
+    "FieldLinePoint": FieldLinePoint
     // "RecordPointMatrix": 
 }
 

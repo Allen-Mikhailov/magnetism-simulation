@@ -112,6 +112,18 @@ const default_simulation_data = {
                 z: 0
             }
 
+        },
+        "test_key_3": {
+            "display_name": "Test FieldLinePoint",
+            "type": "FieldLinePoint",
+            "position": {
+                x: 0,
+                y: -1,
+                z: 0
+            },
+            "max_line_point_count": 100,
+            "has_inverse": false
+
         }
     },
     settings: {}
