@@ -4,6 +4,7 @@ use vector3::Vector3;
 
 use wasm_bindgen::prelude::*;
 
+use std::ops::{Add, Mul};
 use std::{ops::Sub};
 use std::ptr;
 
@@ -85,7 +86,9 @@ pub struct Universe {
     record_points: Vec<Vector3>,
     record_point_vectors: Vec<Vector3>,
 
+    field_line_step_count: usize,
     field_line_count: usize,
+    field_line_point_distance: f64,
     field_line_max_points: usize,
     field_line_start_points: Vec<Vector3>,
     field_lines: Vec<Vector3>,
@@ -101,6 +104,7 @@ impl Universe {
         let record_point_vectors: Vec<Vector3> = Vec::new();
 
         // Lines
+        let field_line_step_count: usize = 1;
         let field_line_start_points: Vec<Vector3> = Vec::new();
         let field_lines: Vec<Vector3> = Vec::new();
         let field_line_polarities: Vec<f64> = Vec::new();
@@ -118,6 +122,8 @@ impl Universe {
             record_point_vectors,
 
             field_line_count: 0,
+            field_line_point_distance: 0.1f64,
+            field_line_step_count,
             field_line_max_points: 0,
             field_line_start_points,
             field_lines,
@@ -239,18 +245,45 @@ impl Universe {
         return self.record_points.as_ptr();
     }
 
-    pub fn compute_line(&mut self, p: &Vector3)
+    pub fn compute_line(&mut self, index: usize)
     {
+        let step_size: f64 =  self.field_line_polarities[index] 
+            * self.field_line_point_distance / self.field_line_step_count as f64;
+            
+        let mut point: Vector3 = self.field_line_start_points[index];
 
+        self.field_lines[self.field_line_max_points*index] = point;
+        for i in 1..self.field_line_max_points
+        {
+            for j in 0..self.field_line_step_count
+            {
+                point = point.add(self.compute_field(&point).mul(step_size));
+            }
+            self.field_lines[self.field_line_max_points*index+i] = point;
+        }
     }
 
     pub fn compute_lines(&mut self)
     {
-        
+        for i in 0..self.field_line_count
+        {
+            self.compute_line(i);
+        }
     }
 
-    pub fn set_lines_count(lines: u32, max_line_size: u32)
+    pub fn set_field_line_step_count(&mut self, count: usize)
     {
+        self.field_line_step_count = count;
+    }
 
+    pub fn set_lines_count(&mut self, lines: usize, max_line_size: usize)
+    {
+        self.field_line_count = lines;
+        self.field_line_max_points = max_line_size;
+
+        // To be allocated in javascript
+        self.field_line_start_points = Vec::<Vector3>::with_capacity(lines);
+        self.field_line_polarities = Vec::with_capacity(lines);
+        self.field_lines = Vec::<Vector3>::with_capacity(lines*max_line_size);
     }
 }
