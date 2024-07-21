@@ -9,6 +9,24 @@ use std::{ops::Sub};
 use std::ptr;
 
 const PI: f64 = std::f64::consts::PI;
+
+#[wasm_bindgen]
+extern "C" {
+    // Use `js_namespace` here to bind `console.log(..)` instead of just
+    // `log(..)`
+    #[wasm_bindgen(js_namespace = console)]
+    fn log(s: &str);
+
+    // The `console.log` is quite polymorphic, so we can bind it with multiple
+    // signatures. Note that we need to use `js_name` to ensure we always call
+    // `log` in JS.
+    #[wasm_bindgen(js_namespace = console, js_name = log)]
+    fn log_u32(a: u32);
+
+    // Multiple arguments too!
+    #[wasm_bindgen(js_namespace = console, js_name = log)]
+    fn log_f64(a: &str, b: f64);
+}
 enum ObjectType {
     StraightWire,
     Undefined,
@@ -122,7 +140,7 @@ impl Universe {
             record_point_vectors,
 
             field_line_count: 0,
-            field_line_point_distance: 0.1f64,
+            field_line_point_distance: 3f64,
             field_line_step_count,
             field_line_max_points: 0,
             field_line_start_points,
@@ -249,7 +267,7 @@ impl Universe {
     {
         let step_size: f64 =  self.field_line_polarities[index] 
             * self.field_line_point_distance / self.field_line_step_count as f64;
-            
+
         let mut point: Vector3 = self.field_line_start_points[index];
 
         self.field_lines[self.field_line_max_points*index] = point;
@@ -278,12 +296,28 @@ impl Universe {
 
     pub fn set_lines_count(&mut self, lines: usize, max_line_size: usize)
     {
+        log_f64("max_line_size", max_line_size as f64);
         self.field_line_count = lines;
         self.field_line_max_points = max_line_size;
 
         // To be allocated in javascript
-        self.field_line_start_points = Vec::<Vector3>::with_capacity(lines);
-        self.field_line_polarities = Vec::with_capacity(lines);
-        self.field_lines = Vec::<Vector3>::with_capacity(lines*max_line_size);
+        self.field_line_start_points = vec![Vector3{x: 0f64, y: 0f64, z: 0f64}; lines];
+        self.field_line_polarities = vec![0f64; lines];
+        self.field_lines = vec![Vector3{x: 0f64, y: 0f64, z: 0f64}; lines*max_line_size];
+    }
+
+    pub fn field_line_polarities_ptr(&self) -> * const f64
+    {
+        return self.field_line_polarities.as_ptr();
+    }
+
+    pub fn field_line_start_points_ptr(&self) -> * const Vector3
+    {
+        return self.field_line_start_points.as_ptr();
+    }
+
+    pub fn field_lines_ptr(&self) -> * const Vector3
+    {
+        return self.field_lines.as_ptr();
     }
 }

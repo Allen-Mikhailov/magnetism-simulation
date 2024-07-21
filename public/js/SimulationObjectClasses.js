@@ -310,7 +310,7 @@ class SandProducer extends SimulationObject
         this.cone_buffer.setFromPoints(this.cone_array)
 
         const point_material  = new THREE.PointsMaterial({ color: 0xff0000, size: .05})
-        const line_material = new THREE.LineBasicMaterial( { linewidth: .5, vertexColors: true, transparent: true, } );
+        const line_material = new THREE.LineBasicMaterial( { linewidth: .5, vertexColors: true, transparent: false, } );
         const cone_material = new THREE.MeshBasicMaterial( { vertexColors: true } );
 
         const points = new THREE.Points(point_buffer, point_material)
@@ -529,23 +529,76 @@ class FieldLineProducer extends SimulationObject
 
         this.start_point_count = 0
         this.start_points = new Float64Array(0)
+        this.start_point_polarities = new Float64Array(0)
+    }
+
+    draw_field_lines()
+    {
+        const total_points = this.start_point_count*this.base.max_line_point_count
+        const positions = new Float32Array(6*(total_points-1))
+
+        for (let i = 0; i < total_points; i++)
+        {
+            positions[i*6+0] = this.field_lines[i*3+0]
+            positions[i*6+1] = this.field_lines[i*3+1]
+            positions[i*6+2] = this.field_lines[i*3+2]
+            positions[i*6+3] = this.field_lines[i*3+3]
+            positions[i*6+4] = this.field_lines[i*3+4]
+            positions[i*6+5] = this.field_lines[i*3+5]
+        }
+
+        this.line_points_array = positions;
+
+        if (this.rendered)
+        {
+            console.log("rendered")
+            const geometry = this.geometry;
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            this.lines_mesh.updateMatrix()
+        }
+        
     }
 
     update_field_line_points()
     {
+
         const max_line_point_count = this.base.max_line_point_count
-        const line_points = []
-        for (let i = 0; i < max_line_point_count; i++)
-        {
-            
-        }
+        const start_point_count = this.start_point_count
+
+        const universe = this.world_object.universe
+        const wasm = this.world_object.wasm
+
+        universe.set_lines_count(start_point_count, max_line_point_count);
+
+        const field_line_start_points_ptr = universe.field_line_start_points_ptr()
+        const field_line_polarities_ptr = universe.field_line_polarities_ptr()
+        const field_lines_ptr = universe.field_lines_ptr()
+
+        const field_line_start_points_array = new Float64Array(wasm.memory.buffer, 
+            field_line_start_points_ptr, start_point_count*3)
+
+        const field_line_polarities = new Float64Array(wasm.memory.buffer, 
+            field_line_polarities_ptr, start_point_count)
+
+        field_line_start_points_array.set(this.start_points, 0)
+        field_line_polarities.set(this.start_point_polarities, 0)
+        universe.compute_lines()
+
+        const field_lines_array = new Float64Array(wasm.memory.buffer, 
+            field_lines_ptr, start_point_count*max_line_point_count*3)
+
+        this.field_lines = new Float64Array(start_point_count*max_line_point_count*3)
+        this.field_lines.set(field_lines_array, 0)
+
+        this.draw_field_lines()
     }
 
     render()
     {
+        super.render()
         const geometry = new THREE.BufferGeometry();
         const material = new THREE.LineBasicMaterial({color: 0xffffff})
-        const lines_mesh = new THREE.Line(geometry, material)
+        const lines_mesh = new THREE.LineSegments(geometry, material)
 
         this.geometry = geometry
         this.lines_mesh = lines_mesh
@@ -557,9 +610,9 @@ class FieldLineProducer extends SimulationObject
 
 class FieldLinePoint extends FieldLineProducer
 {
-    constructor(world_object, _type, base)
+    constructor(world_object, base)
     {
-        super(world_object, _type, base)
+        super(world_object, "FieldLinePoint", base)
     }
 
     update_field_line_points()
@@ -569,7 +622,44 @@ class FieldLinePoint extends FieldLineProducer
         this.start_points[0] = this.base.position.x
         this.start_points[1] = this.base.position.y
         this.start_points[2] = this.base.position.z
+
+        this.start_point_polarities = new Float64Array(1)
+        this.start_point_polarities[0] = 1
+
         super.update_field_line_points()
+    }
+
+    set_property(property, value, no_update)
+    {
+        // console.log("set property", property, value, typeof value)
+        super.set_property(property, value, no_update)
+
+        let point_update = false
+
+        switch (property)
+        {
+
+            case "position":
+                point_update = true
+                break;
+
+            case "size":
+                point_update = true
+                break;
+
+            case "points":
+                point_update = true
+                break;
+            case "rotation":
+                point_update = true
+                break;
+        }
+
+        if (point_update)
+            this.needs_point_update = true
+
+        bool_call(!no_update && point_update, () => this.update_field_line_points())
+        bool_call(!no_update, () => this.update())
     }
 }
 

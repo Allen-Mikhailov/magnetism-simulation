@@ -26,9 +26,9 @@ let wasm
 let world_object
 
 const color_range = [  // Temp
-	new THREE.Color(0x000000),
-	new THREE.Color(0x000000),
-	new THREE.Color(0xff0000)
+	new THREE.Color(0x00ff00),
+	new THREE.Color(0xff0000),
+	new THREE.Color(0x0000ff)
 ]
 const colorband = new ColorBand(color_range)
 
@@ -86,6 +86,9 @@ function field_update()
 		const sim_object = simulation_objects[sim_object_key]
 		if (sim_object.produces_sand)
 			sim_object.field_update()
+
+		if (sim_object.produces_field_lines)
+			sim_object.update_field_line_points()
 	})
 
 	color_update()
