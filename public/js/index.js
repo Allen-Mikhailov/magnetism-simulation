@@ -2,7 +2,8 @@ import * as Bars from "./bars.js"
 import UILoader from "./UILoader.js";
 import * as THREE from "./threejs/three.js"
 import ThreeJsHandler from "./ThreeJsHandler.js";
-import * as SimObjectClasses from "./SimulationObjectClasses.js"
+import * as SimulationComponents from "./SimulationComponents.js"
+import { WorldObject } from "./SimulationObjectClasses.js";
 import DataLoader from "./DataLoader.js";
 import { default_simulation_data } from "./default_data.js";
 
@@ -111,7 +112,7 @@ function simulation_objects_update()
 function add_simulation_object(object_key)
 {
 	const object_data = sim_data.sim_objects[object_key]
-	const sim_object = SimObjectClasses.load_from_object(world_object, object_data)
+	const sim_object = SimulationComponents.load_from_object(world_object, object_data)
 
 	sim_object.render()
 
@@ -198,7 +199,7 @@ function start(current_wasm)
 	ui_loader.main_content.element.appendChild(three_js_handler.renderer.domElement)
 	three_js_handler.start()
 
-	world_object = new SimObjectClasses.WorldObject()
+	world_object = new WorldObject()
 	world_object.wasm = wasm
 	world_object.scene = three_js_handler.scene
 	world_object.three_js_handler = three_js_handler

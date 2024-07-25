@@ -1,5 +1,19 @@
 import * as Bars from "./bars.js"
 
+function create_display(data, _type, key, label)
+{
+    return {
+        "type": _type, 
+        "name": key+"_input", 
+        "value": {
+            "edit": true, 
+            "key": key, 
+            "value": data[key], 
+            "label": label
+        }
+    }
+}
+
 function create_display_name_item(data)
 {
     return {
@@ -167,21 +181,30 @@ const property_data_functions = {
             create_type_display_item(data),
             create_display_name_item(data),
             create_position_item(data),
-            {
-                "type": "number_input", 
-                "name": "length_input", 
-                "value": {
-                    "edit": true, 
-                    "key": "wires", 
-                    "value": data.wires, 
-                    "label": "Wires"
-                }
-            },
+            // {
+            //     "type": "number_input", 
+            //     "name": "length_input", 
+            //     "value": {
+            //         "edit": true, 
+            //         "key": "wires", 
+            //         "value": data.wires, 
+            //         "label": "Wires"
+            //     }
+            // },
             create_vector3_item(data, "p1", "p1"),
             create_vector3_item(data, "p2", "p2"),
             create_vector3_item(data, "p3", "p3"),
             create_vector3_item(data, "p4", "p4")
 
+        ]
+    },
+    "FieldLinePoint": data => {
+        return [
+            property_header,
+            create_type_display_item(data), 
+            create_display_name_item(data),
+            create_position_item(data),
+            create_display(data, "number_input", "max_line_point_count", "Point Count")
         ]
     }
 }

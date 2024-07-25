@@ -275,7 +275,7 @@ impl Universe {
         {
             for j in 0..self.field_line_step_count
             {
-                point = point.add(self.compute_field(&point).mul(step_size));
+                point = point.add(self.compute_field(&point).normalize().mul(step_size));
             }
             self.field_lines[self.field_line_max_points*index+i] = point;
         }
@@ -296,7 +296,7 @@ impl Universe {
 
     pub fn set_lines_count(&mut self, lines: usize, max_line_size: usize)
     {
-        log_f64("max_line_size", max_line_size as f64);
+        // log_f64("max_line_size", max_line_size as f64);
         self.field_line_count = lines;
         self.field_line_max_points = max_line_size;
 
