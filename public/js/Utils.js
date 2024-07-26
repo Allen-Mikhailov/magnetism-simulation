@@ -37,7 +37,7 @@ function mulberry32(a) {
         return ((t ^ t >>> 14) >>> 0) / 4294967296;
     }
 }
-  
+
 
 export {
     createKey,

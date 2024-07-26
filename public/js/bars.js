@@ -445,7 +445,7 @@ class ContentListItemListButton extends ContentListItem
     update_value(value)
     {
         super.update_value(value)
-        this.element.innerText = value
+        this.text_element.innerText = value
     }
 
     update_selected(selected)
@@ -456,6 +456,8 @@ class ContentListItemListButton extends ContentListItem
     render()
     {
         this.element = createElement("div", null, "ContentListItemButton")
+        this.text_element = createElement("div", null, "text")
+        this.element.appendChild(this.text_element)
         const obj = this
         this.element.onclick = (e) => {
             this.events.fire("list_button_press", obj, e)

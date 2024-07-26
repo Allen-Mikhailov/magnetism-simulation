@@ -7,6 +7,9 @@ class FieldLinePoint extends FieldLineProducer
     constructor(world_object, base)
     {
         super(world_object, "FieldLinePoint", base)
+        this.handle = new THREE.Object3D();
+
+        world_object.scene.add(this.handle)
     }
 
     update_field_line_points()
@@ -36,15 +39,7 @@ class FieldLinePoint extends FieldLineProducer
             case "position":
                 point_update = true
                 break;
-
-            case "size":
-                point_update = true
-                break;
-
-            case "points":
-                point_update = true
-                break;
-            case "rotation":
+            case "max_line_point_count":
                 point_update = true
                 break;
         }
@@ -54,6 +49,30 @@ class FieldLinePoint extends FieldLineProducer
 
         bool_call(!no_update && point_update, () => this.update_field_line_points())
         bool_call(!no_update, () => this.update())
+    }
+
+    selection_update(selected, with_tool)
+    {
+        super.selection_update()
+        
+        const three_js_handler = this.world_object.three_js_handler
+
+        if (selected && with_tool) {
+            const self = this
+            three_js_handler.set_controls(this.handle, () => {
+                // const direction = new THREE.Vector3(0, 1, 0).applyEuler(this.mesh.rotation)
+                self.bulk_set_properties({
+                    "position": {
+                        x: self.handle.position.x, 
+                        y: self.handle.position.y, 
+                        z: self.handle.position.z
+                    }
+                })
+            })
+        } else {
+            three_js_handler.remove_controls()
+        }
+
     }
 }
 

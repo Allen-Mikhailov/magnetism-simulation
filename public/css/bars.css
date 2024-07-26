@@ -130,6 +130,8 @@ body {
 .ContentList {
   width: 15vw;
   background-color: #192229;
+  display: flex;
+  flex-direction: column;
 }
 
 .h-border {
@@ -160,7 +162,7 @@ body {
 
 .ContentListItemButton {
   height: 3.5vh;
-  max-width: 100%;
+  width: calc(100% - 1em);
   display: flex;
   align-items: center;
   padding-left: 1em;
@@ -170,6 +172,14 @@ body {
 }
 .ContentListItemButton.selected {
   filter: brightness(150%);
+}
+.ContentListItemButton .text {
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  display: block;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .ContentListItemStringInput {
@@ -184,6 +194,8 @@ body {
   margin-left: 0.5em;
   width: calc(100% - 0.5em);
   text-overflow: ellipsis;
+  min-width: 0px;
+  overflow: hidden;
 }
 .ContentListItemStringInput .input {
   text-overflow: ellipsis;
@@ -214,6 +226,8 @@ body {
   margin-left: 0.5em;
   width: calc(100% - 0.5em);
   text-overflow: ellipsis;
+  min-width: 0px;
+  overflow: hidden;
 }
 .ContentListItemNumberInput .input {
   text-overflow: ellipsis;
@@ -244,6 +258,8 @@ body {
   margin-left: 0.5em;
   width: calc(100% - 0.5em);
   text-overflow: ellipsis;
+  min-width: 0px;
+  overflow: hidden;
 }
 .ContentListItemVectorInput .label-container .input {
   text-overflow: ellipsis;
@@ -276,6 +292,8 @@ body {
   margin-left: 0.5em;
   width: calc(100% - 0.5em);
   text-overflow: ellipsis;
+  min-width: 0px;
+  overflow: hidden;
 }
 .ContentListItemVectorInput .number-container .container .input {
   text-overflow: ellipsis;

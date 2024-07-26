@@ -122,7 +122,7 @@ impl Universe {
         let record_point_vectors: Vec<Vector3> = Vec::new();
 
         // Lines
-        let field_line_step_count: usize = 1;
+        let field_line_step_count: usize = 200;
         let field_line_start_points: Vec<Vector3> = Vec::new();
         let field_lines: Vec<Vector3> = Vec::new();
         let field_line_polarities: Vec<f64> = Vec::new();

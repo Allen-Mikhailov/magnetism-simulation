@@ -132,6 +132,15 @@ function create_simulation_object(object_data)
 	simulation_objects_update()
 }
 
+function remove_simulation_object(key)
+{
+	simulation_objects[key].destroy()
+	delete simulation_objects[key]
+	delete sim_data.sim_objects[key]
+	simulation_objects_update()
+	data_update()
+}
+
 function update_properties()
 {
 	ui_loader.property_manager.update_data(sim_data.sim_objects[selected_object])
@@ -232,6 +241,10 @@ function start(current_wasm)
 
 		if (key == "display_name")
 			simulation_objects_update()
+	})
+
+	ui_loader.property_manager.events.connect("delete_component", (key, value) => {
+		remove_simulation_object(key)
 	})
 
 	simulation_objects = {}
