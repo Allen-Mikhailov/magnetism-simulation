@@ -348,4 +348,24 @@ body {
   right: 0%;
 }
 
+.ContentListBigRedButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 5.25vh;
+  max-width: 100%;
+  cursor: pointer;
+}
+.ContentListBigRedButton .button {
+  width: calc(100% - 6.6vh);
+  height: calc(100% - 2.2vh);
+  border: #ca5e5e solid 2px;
+  text-align: center;
+  color: #ca5e5e;
+  border-radius: 1vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /*# sourceMappingURL=bars.css.map */

@@ -140,6 +140,15 @@ function create_vector3_item(data, key, label)
     }
 }
 
+function delete_button()
+{
+    return {
+        "type": "big_red_button", 
+        "name": "delete", 
+        "value": "Delete"
+    }
+}
+
 const property_header = {"type": "header", "name": "property_header", "value": "Properties"}
 const property_data_functions = {
     "StraightWire": (data) => {
@@ -158,8 +167,8 @@ const property_data_functions = {
                     "label": "Length"
                 }
             },
-            create_direction_item(data)
-            // {"type": "list-button", "name": "test-header", "value": "Test Thing"}
+            create_direction_item(data),
+            delete_button()
         ]
     },
     "CubePointCloud": (data) => {
@@ -171,8 +180,8 @@ const property_data_functions = {
             create_points_item(data),
             create_position_item(data),
             create_random_seed_item(data),
-            create_randomness_item(data)
-            // {"type": "list-button", "name": "test-header", "value": "Test Thing"}
+            create_randomness_item(data),
+            delete_button()
         ]
     },
     "CubicBezierWireApprox": (data) => {
@@ -181,20 +190,21 @@ const property_data_functions = {
             create_type_display_item(data),
             create_display_name_item(data),
             create_position_item(data),
-            // {
-            //     "type": "number_input", 
-            //     "name": "length_input", 
-            //     "value": {
-            //         "edit": true, 
-            //         "key": "wires", 
-            //         "value": data.wires, 
-            //         "label": "Wires"
-            //     }
-            // },
+            {
+                "type": "number_input", 
+                "name": "length_input", 
+                "value": {
+                    "edit": true, 
+                    "key": "wires", 
+                    "value": data.wires, 
+                    "label": "Wires"
+                }
+            },
             create_vector3_item(data, "p1", "p1"),
             create_vector3_item(data, "p2", "p2"),
             create_vector3_item(data, "p3", "p3"),
-            create_vector3_item(data, "p4", "p4")
+            create_vector3_item(data, "p4", "p4"),
+            delete_button()
 
         ]
     },
@@ -204,7 +214,8 @@ const property_data_functions = {
             create_type_display_item(data), 
             create_display_name_item(data),
             create_position_item(data),
-            create_display(data, "number_input", "max_line_point_count", "Point Count")
+            create_display(data, "number_input", "max_line_point_count", "Point Count"),
+            delete_button()
         ]
     }
 }

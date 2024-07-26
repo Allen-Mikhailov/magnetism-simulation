@@ -134,6 +134,9 @@ function create_simulation_object(object_data)
 
 function remove_simulation_object(key)
 {
+	if (key == selected_object)
+		update_selected_object(null)
+
 	simulation_objects[key].destroy()
 	delete simulation_objects[key]
 	delete sim_data.sim_objects[key]
@@ -243,8 +246,10 @@ function start(current_wasm)
 			simulation_objects_update()
 	})
 
-	ui_loader.property_manager.events.connect("delete_component", (key, value) => {
-		remove_simulation_object(key)
+	ui_loader.property_manager.events.connect("big_red_button_press", (object) => {
+		console.log("big_red_button_press", object)
+		if (object.name == "delete")
+			remove_simulation_object(selected_object)
 	})
 
 	simulation_objects = {}

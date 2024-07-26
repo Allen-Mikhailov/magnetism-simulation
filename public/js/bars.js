@@ -421,7 +421,7 @@ class ContentListItem
 
     set_order(order)
     {
-        this.element.style.order = toString(order)
+        this.element.style.order = ""+order
     }
 
     update_value(new_value)
@@ -461,6 +461,38 @@ class ContentListItemListButton extends ContentListItem
         const obj = this
         this.element.onclick = (e) => {
             this.events.fire("list_button_press", obj, e)
+        }
+        this.update_value(this.value)
+        return this.element
+    }
+}
+
+class ContentListBigRedButton extends ContentListItem
+{
+    constructor(name, events, label)
+    {
+        super(name, events, label)
+    }
+
+    update_value(value)
+    {
+        super.update_value(value)
+        this.text_element.innerText = value
+    }
+
+    update_selected(selected)
+    {
+        super.update_selected(selected)
+    }
+
+    render()
+    {
+        this.element = createElement("div", null, "ContentListBigRedButton")
+        this.text_element = createElement("div", null, "button")
+        this.element.appendChild(this.text_element)
+        const obj = this
+        this.element.onclick = (e) => {
+            this.events.fire("big_red_button_press", obj, e)
         }
         this.update_value(this.value)
         return this.element
@@ -781,6 +813,7 @@ class ContentListItemHeader extends ContentListItem
 
 const TYPE_MATCH = {
     "list-button": ContentListItemListButton,
+    "big_red_button": ContentListBigRedButton,
     "header": ContentListItemHeader,
     "string_input": ContentListItemStringInput,
     "number_input": ContentListItemNumberInput,
