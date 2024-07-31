@@ -4,7 +4,7 @@ import init, {
 } from "../pkg/magnetism_simulation.js";
 import { Events } from "./bars.js";
 import ThreeJsHandler from "./ThreeJsHandler.js";
-import { createKey, color_array } from "./Utils.js";
+import { createKey, color_array, time_function } from "./Utils.js";
 import * as THREE from "./threejs/three.js"
 
 
@@ -364,8 +364,13 @@ class FieldLineProducer extends SimulationObject
 
         field_line_start_points_array.set(this.start_points, 0)
         field_line_polarities.set(this.start_point_polarities, 0)
-        universe.compute_lines()
 
+        time_function("Compute Lines", () => universe.compute_lines())
+        // universe.compute_lines()
+
+        const start = performance.now();
+
+        
         const field_lines_array = new Float64Array(wasm.memory.buffer, 
             field_lines_ptr, start_point_count*max_line_point_count*3)
 
@@ -373,6 +378,9 @@ class FieldLineProducer extends SimulationObject
         this.field_lines.set(field_lines_array, 0)
 
         this.draw_field_lines()
+
+        const end = performance.now();
+        console.log(`Drawing Execution time: ${end - start} ms`);
     }
 
     render()

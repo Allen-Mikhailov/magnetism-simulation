@@ -38,6 +38,16 @@ function mulberry32(a) {
     }
 }
 
+function time_function(label, callback)
+{
+    const start = performance.now();
+
+    callback()
+
+    const end = performance.now();
+    console.log(`${label} Execution time: ${end - start} ms`);
+}
+
 
 export {
     createKey,
@@ -45,5 +55,6 @@ export {
     vec3_from_obj,
     three_vec_from_obj,
     color_array,
+    time_function,
     mulberry32
 }

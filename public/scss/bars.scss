@@ -108,6 +108,7 @@ body {
 
 .iconbuttongroup {
     display: flex;
+    
     align-items: center;
 }
 
@@ -182,11 +183,21 @@ body {
     // flex: 1;
 }
 
-.ContentList {
+@mixin content-list {
     width: 15vw;
     background-color: $secondary-color;
     display: flex;
     flex-direction: column;
+}
+
+.ContentList {
+    @include content-list()
+}
+
+.ContentListDropDown {
+    @include content-list();
+    position: absolute;
+    border: $border;
 }
 
 .h-border {
@@ -208,6 +219,7 @@ body {
     height: $item-height;
     max-width: 100%;
     display: flex;
+    position: relative;
     align-items: center;
     padding-left: 1em;
 
@@ -217,6 +229,12 @@ body {
     font-size: 110%;
 
     border-bottom: $border;
+
+    & .iconbuttongroup {
+        position: absolute;
+        height: 100%;
+        right: 1em;
+    }
 }
 
 .ContentListItemButton {

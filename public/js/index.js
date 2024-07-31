@@ -98,7 +98,9 @@ function field_update()
 function simulation_objects_update()
 {
 	const list = [
-		{"type": "header", "name": "explorer_header", "value": "Explorer"}
+		{"type": "header", "name": "explorer_header", "value": {"title": "Explorer", "buttons": [
+			{"icon": "plus", "name": "create"}
+		]}}
 	]
 
 	Object.keys(sim_data.sim_objects).map(object_key => {
@@ -231,6 +233,11 @@ function start(current_wasm)
 	ui_loader.explorer.events.connect("list_button_press", (object) => {
 		object.select()
 		update_selected_object(object.selected?object.name:null)
+	})
+
+	ui_loader.explorer.events.connect("explorer_header_pressed_create", (e) => {
+		ui_loader.create_dropdown.display(e.clientX, e.clientY)
+		e.preventDefault()
 	})
 
 	ui_loader.tools_select_group.action = set_tool

@@ -1,6 +1,7 @@
 import { Vector3 } from "./threejs/three.js"
 
 const IconTable = {
+    "plus":     'url("/imgs/plus.png")',
     "clear":     'url("/imgs/clear.png")',
     "squares":   'url("/imgs/select.png")',
     "rotate":    'url("/imgs/rotate.png")',
@@ -218,6 +219,11 @@ class IconButtonSelectGroup extends IconButtonGroup
     {
         this.selected = value
         this.updateSelected()
+    }
+
+    setButtons(buttons)
+    {
+
     }
 
     addButton(name, icon)
@@ -789,20 +795,39 @@ class ContentListItemVector3NormalizedInput extends ContentListItemVector3Input
 
 class ContentListItemHeader extends ContentListItem
 {
-    constructor(name, events, label)
+    constructor(name, events, value)
     {
-        super(name, events, label)
+        super(name, events, value)
+        this.icon_buttons = new IconButtonGroup("buttons")
+
+        if (value.buttons)
+        {
+            value.buttons.map((button) => {
+                const icon_button = new IconButton(button.name,  button.icon)
+                icon_button.setAction((e) => events.fire(`${name}_pressed_${button.name}`, e))
+                this.icon_buttons.addButton(icon_button)
+            })
+        }
     }
 
     update_value(value)
     {
         super.update_value(value)
-        this.element.innerText = value
+        this.title_container.innerText = value.title
     }
 
     render()
     {
         this.element = createElement("div", null, "ContentListItemHeader")
+
+        const button_container = this.icon_buttons.render()
+        button_container.classList.add("right")
+
+        this.title_container = createElement("div", null, 'title')
+
+        this.element.appendChild(button_container)
+        this.element.appendChild(this.title_container)
+
         this.element.onclick = (e) => {
             this.events.fire(this, e)
         }
@@ -810,6 +835,8 @@ class ContentListItemHeader extends ContentListItem
         return this.element
     }
 }
+
+export { ContentListItemHeader }
 
 const TYPE_MATCH = {
     "list-button": ContentListItemListButton,
@@ -913,6 +940,44 @@ class ContentList
         return element
     }
 }
+
+class ContentListDropDown extends ContentList
+{
+    constructor(name)
+    {
+        super(name)
+        this.displayed = false
+        this.display_tick = 0
+    }
+
+    render()
+    {
+        super.render()
+        this.element.className = "ContentListDropDown"
+        this.element.style.display = "none"
+
+        document.addEventListener("click", (e) => {
+            if (this.displayed && !this.element.contains(e.target) && performance.now()-this.display_tick > 100) 
+            {
+                this.element.style.display = "none"
+                this.displayed = false
+            }
+        })
+
+        return this.element
+    }
+
+    display(x, y)
+    {
+        this.element.style.display = "flex"
+        this.element.style.left = `${x}px`
+        this.element.style.top = `${y}px`
+        this.displayed = true
+        this.display_tick = performance.now()
+    }
+}
+
+export { ContentListDropDown }
 
 export { ContentList }
 

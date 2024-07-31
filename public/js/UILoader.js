@@ -1,4 +1,5 @@
 import * as Bars from "./bars.js"
+import { class_strings } from "./SimulationComponents.js"
 
 function create_display(data, _type, key, label)
 {
@@ -149,7 +150,7 @@ function delete_button()
     }
 }
 
-const property_header = {"type": "header", "name": "property_header", "value": "Properties"}
+const property_header = {"type": "header", "name": "property_header", "value": {"title": "Properties"}}
 const property_data_functions = {
     "StraightWire": (data) => {
         return [
@@ -256,6 +257,7 @@ class UILoader
 
 
         this.middle_content = new Bars.HContainer("middle_content")
+        
 
         this.explorer = new Bars.ContentList("explorer")
         this.property_manager = new Bars.PropertyList("property_manager", property_data_function)
@@ -279,6 +281,21 @@ class UILoader
         this.bars.addItem(this.top_bar)
         this.bars.addItem(new Bars.HBorder());
         this.bars.addItem(this.middle_content)
+
+        const create_dropdown = new Bars.ContentListDropDown("create_object_dropdown")
+
+        const create_dropdown_list = []
+        Object.keys(class_strings).map(str => {
+            create_dropdown_list.push({
+                "type": "list-button", "name": str, "value": str
+            })
+        })
+
+        this.create_dropdown = create_dropdown
+
+        document.body.appendChild(create_dropdown.render())
+
+        create_dropdown.update_list(create_dropdown_list)
     }
 
     render()
