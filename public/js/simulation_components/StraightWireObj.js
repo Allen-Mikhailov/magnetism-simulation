@@ -36,6 +36,25 @@ class StraightWireObj extends FieldProducer
 
     }
 
+    static get_default_data()
+    {
+        return {
+            "type": "StraightWire",
+            "display_name": "Test Wire",
+            "position": {
+                x: 0,
+                y: 0,
+                z: 0
+            },
+            "direction": {
+                x: 0,
+                y: 1,
+                z: 0
+            },
+            "length": 10
+        }
+    }
+
     render()
     {
         super.render()
@@ -59,9 +78,11 @@ class StraightWireObj extends FieldProducer
         this.world_object.scene.add(this.mesh)
     }
 
-    clean_up(scene)
+    destroy()
     {
-        scene.remove(this.mesh)
+        this.world_object.scene.remove(this.mesh)
+        this.world_object.universe.free_handle(this.handle)
+        super.destroy()
     }
 
     update()

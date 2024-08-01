@@ -237,7 +237,14 @@ function start(current_wasm)
 
 	ui_loader.explorer.events.connect("explorer_header_pressed_create", (e) => {
 		ui_loader.create_dropdown.display(e.clientX, e.clientY)
-		e.preventDefault()
+	})
+
+	ui_loader.create_dropdown.events.connect("list_button_press", (object) => {
+		const object_type = object.name
+		const object_class = SimulationComponents.class_strings[object_type]
+		const obj_data = object_class.get_default_data()
+		create_simulation_object(obj_data)
+		ui_loader.create_dropdown.hide()
 	})
 
 	ui_loader.tools_select_group.action = set_tool

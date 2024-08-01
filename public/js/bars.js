@@ -959,12 +959,17 @@ class ContentListDropDown extends ContentList
         document.addEventListener("click", (e) => {
             if (this.displayed && !this.element.contains(e.target) && performance.now()-this.display_tick > 100) 
             {
-                this.element.style.display = "none"
-                this.displayed = false
+                this.hide()
             }
         })
 
         return this.element
+    }
+
+    hide()
+    {
+        this.element.style.display = "none"
+        this.displayed = false
     }
 
     display(x, y)

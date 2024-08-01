@@ -412,6 +412,11 @@ class FieldProducer extends SimulationObject
     {
         this.local_events.fire("update_field")
     }
+
+    destroy()
+    {
+        this.local_events.fire("update_field")
+    }
 }
 
 export { FieldProducer }

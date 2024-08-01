@@ -17,6 +17,49 @@ class CubicBezierWireApprox extends FieldProducer
         this.update_wire()
     }
 
+    destroy()
+    {
+        this.handles.map(handle => {
+            this.world_object.universe.free_handle(handle)
+        })
+        this.world_object.scene.remove(this.mesh)
+        super.destroy()
+    }
+
+    get_default_data()
+    {
+        return {
+            "display_name": "CubicBezierWireApprox",
+            "type": "CubicBezierWireApprox",
+            "position": {
+                x: 0,
+                y: 0,
+                z: -5
+            },
+            "wires": 20,
+            "p1": {
+                x: 0,
+                y: 0,
+                z: 0
+            },
+            "p2": {
+                x: 10,
+                y: 0,
+                z: 0
+            },
+            "p3": {
+                x: 10,
+                y: 5,
+                z: 0
+            },
+            "p4": {
+                x: 0,
+                y: 5,
+                z: 0
+            },
+        }
+    }
+
     render()
     {
         super.render()
@@ -32,11 +75,6 @@ class CubicBezierWireApprox extends FieldProducer
         this.update()
 
         this.world_object.scene.add(this.mesh)
-    }
-
-    clean_up(scene)
-    {
-        scene.remove(this.mesh)
     }
 
     update()
