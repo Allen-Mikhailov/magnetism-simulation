@@ -30,6 +30,42 @@ class CubePointCloud extends SandProducer
         this.render_update()
     }
 
+    get_default_data()
+    {
+        return {
+            "display_name": "Point Cloud",
+            "type": "CubePointCloud",
+            "random_seed": 0,
+            "randomness": 0,
+            "position": {
+                x: 0,
+                y: 0,
+                z: 0
+            },
+            "points": {
+                x: 5,
+                y: 5,
+                z: 5
+            },
+            "size": {
+                x: 5,
+                y: 5,
+                z: 5
+            },
+            "rotation": {
+                x: 0,
+                y: 0,
+                z: 0
+            }
+        }
+    }
+
+    destroy()
+    {
+        this.world_object.scene.remove(this.cube)
+        super.destroy()
+    }
+
     render_update()
     {
         if (this.rendered)

@@ -295,6 +295,13 @@ class SandProducer extends SimulationObject
             scene.add(cones)
     }
 
+    destroy()
+    {
+        this.world_object.scene.remove(this.points_mesh)
+        this.world_object.scene.remove(this.lines_mesh)
+        this.world_object.scene.remove(this.cones_mesh)
+    }
+
     update()
     {
         this.update_points()
@@ -341,6 +348,11 @@ class FieldLineProducer extends SimulationObject
         
     }
 
+    destroy()
+    {
+        this.world_object.scene.remove(this.lines_mesh)
+    }
+
     update_field_line_points()
     {
 
@@ -368,8 +380,6 @@ class FieldLineProducer extends SimulationObject
         time_function("Compute Lines", () => universe.compute_lines())
         // universe.compute_lines()
 
-        const start = performance.now();
-
         
         const field_lines_array = new Float64Array(wasm.memory.buffer, 
             field_lines_ptr, start_point_count*max_line_point_count*3)
@@ -378,9 +388,6 @@ class FieldLineProducer extends SimulationObject
         this.field_lines.set(field_lines_array, 0)
 
         this.draw_field_lines()
-
-        const end = performance.now();
-        console.log(`Drawing Execution time: ${end - start} ms`);
     }
 
     render()
