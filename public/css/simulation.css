@@ -383,22 +383,19 @@ body {
   justify-content: center;
 }
 
-body {
-  background-color: #242936;
+.scene-canvas {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
 }
 
-#top-bar {
-  border-bottom: #11141b solid 2px;
-  height: 8.25vh;
-  position: relative;
-}
-
-#top-bar-title {
+#drawcanvas {
   position: absolute;
-  left: 1.5em;
-  font-size: 3vh;
-  top: 50%;
-  translate: 0% -50%;
+  aspect-ratio: 1;
+  height: 50%;
+  right: 0%;
+  bottom: 0%;
+  border: #aaa solid 3px;
 }
 
-/*# sourceMappingURL=index.css.map */
+/*# sourceMappingURL=simulation.css.map */
