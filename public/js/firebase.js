@@ -1,7 +1,7 @@
 import { initializeApp  } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js'
 
 const firebaseConfig = {
-    apiKey: "AIzaSyCg33_jbyjrGwyFHzSKp56IWq_orCt9zYA",
+    apiKey: "firebase_api_key",
     authDomain: "magnetism-simulation.firebaseapp.com",
     projectId: "magnetism-simulation",
     storageBucket: "magnetism-simulation.appspot.com",
