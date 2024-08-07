@@ -11,7 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: npm ci && npm run build
+      - run: echo '${{ secrets.FIREBASE_API_KEY }}'
+      - run: sed -i 's/firebase_api_key/${{ secrets.FIREBASE_API_KEY }}/g' public/js/firebase.js
+      - run: cat './public/js/firebase.js'
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
