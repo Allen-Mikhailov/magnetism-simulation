@@ -1,0 +1,33 @@
+/* tslint:disable */
+/* eslint-disable */
+export const memory: WebAssembly.Memory;
+export function __wbg_simulationobject_free(a: number): void;
+export function __wbg_universe_free(a: number): void;
+export function universe_new(): number;
+export function universe_get_next_handle(a: number): number;
+export function universe_free_handle(a: number, b: number): void;
+export function universe_add_straight_wire(a: number, b: number, c: number, d: number): number;
+export function universe_set_object_position(a: number, b: number, c: number): void;
+export function universe_set_object_direction(a: number, b: number, c: number): void;
+export function universe_set_object_length(a: number, b: number, c: number): void;
+export function universe_compute_field(a: number, b: number): number;
+export function universe_compute_record_points(a: number): void;
+export function universe_set_record_point_count(a: number, b: number): void;
+export function universe_record_point_vectors_ptr(a: number): number;
+export function universe_record_points_ptr(a: number): number;
+export function universe_compute_line(a: number, b: number): void;
+export function universe_compute_lines(a: number): void;
+export function universe_set_field_line_step_count(a: number, b: number): void;
+export function universe_set_lines_count(a: number, b: number, c: number): void;
+export function universe_field_line_polarities_ptr(a: number): number;
+export function universe_field_line_start_points_ptr(a: number): number;
+export function universe_field_lines_ptr(a: number): number;
+export function __wbg_vector3_free(a: number): void;
+export function __wbg_get_vector3_x(a: number): number;
+export function __wbg_set_vector3_x(a: number, b: number): void;
+export function __wbg_get_vector3_y(a: number): number;
+export function __wbg_set_vector3_y(a: number, b: number): void;
+export function __wbg_get_vector3_z(a: number): number;
+export function __wbg_set_vector3_z(a: number, b: number): void;
+export function vector3_js_new(a: number, b: number, c: number): number;
+export function vector3_set(a: number, b: number, c: number, d: number): void;
