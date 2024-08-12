@@ -12,6 +12,20 @@ class FieldLinePoint extends FieldLineProducer
         world_object.scene.add(this.handle)
     }
 
+    static get_default_data() {
+        return {
+            "display_name": "FieldLinePoint",
+            "type": "FieldLinePoint",
+            "position": {
+                x: 0,
+                y: -1,
+                z: 0
+            },
+            "max_line_point_count": 100,
+            "has_inverse": false
+        }
+    }
+
     update_field_line_points()
     {
         this.start_point_count = 1

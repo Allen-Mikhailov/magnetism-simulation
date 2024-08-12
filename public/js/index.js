@@ -34,7 +34,7 @@ function user_data_update()
     user_data.simulations.map((id) => {
         const element = document.createElement("a")
         element.innerText = id
-        element.href = "/simulation#"+id
+        element.href = "/simulation.html#"+id
         simulations_list.appendChild(element)
     })
 }

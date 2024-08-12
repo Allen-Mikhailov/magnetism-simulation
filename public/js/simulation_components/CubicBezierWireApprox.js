@@ -26,7 +26,7 @@ class CubicBezierWireApprox extends FieldProducer
         super.destroy()
     }
 
-    get_default_data()
+    static get_default_data()
     {
         return {
             "display_name": "CubicBezierWireApprox",
@@ -131,7 +131,7 @@ class CubicBezierWireApprox extends FieldProducer
             this.mesh.updateMatrix()
         }
         
-        for (let i = 0; i < this.base.wires; i++)
+        for (let i = 0; i < this.handles.length; i++)
         {
             const handle = this.handles[i]
             const position = vec3_from_obj(three_vec_from_obj(points[i]).add(main_pos))
