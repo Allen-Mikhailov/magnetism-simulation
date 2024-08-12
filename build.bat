@@ -4,7 +4,7 @@ wasm-pack build --release --target web
 
 echo Make sure to specify a directory
 
-xcopy %~dp0\pkg %~dp0\public\pkg /E /H /C /R /Q /Y
+del %~dp0\pkg\.gitignore
 
-del %~dp0\public\pkg\.gitignore
+xcopy %~dp0\pkg %~dp0\public\pkg /E /H /C /R /Q /Y
 

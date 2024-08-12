@@ -1,0 +1,14 @@
+{
+  "name": "magnetism-simulation",
+  "version": "0.1.0",
+  "files": [
+    "magnetism_simulation_bg.wasm",
+    "magnetism_simulation.js",
+    "magnetism_simulation.d.ts"
+  ],
+  "module": "magnetism_simulation.js",
+  "types": "magnetism_simulation.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}
