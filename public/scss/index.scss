@@ -5,9 +5,11 @@ body {
     background-color: $primary-color;
 }
 
+$top-bar-height: calc($tab-width * 1.5);
+
 #top-bar {
     border-bottom: $border;
-    height: calc($tab-width * 1.5);
+    height: $top-bar-height;
     position: relative;
 }
 
@@ -19,4 +21,42 @@ body {
 
     top: 50%;
     translate: 0% -50%;
+}
+
+#top-bar-sign-in {
+    position: absolute;
+    right: 2em;
+    top: 50%;
+    translate: 0% -50%;
+
+    max-height: 50%;
+    padding: .8em;
+
+    font-size: 2vh;
+
+    border-radius: 1em;
+
+    border: $border-width solid $font-color;
+    cursor: pointer;
+}
+
+$left-bar-width: 20vw;
+#left-bar {
+    width: $left-bar-width;
+    top: $top-bar-height;
+    height: calc(100% - $top-bar-height);
+    position: absolute;
+    border-right: $border;
+}
+
+#create-button {
+    font-size: 2vh;
+}
+
+#simulations-list {
+    position: absolute;
+    left: calc($left-bar-width + $border-width);
+    top: calc($top-bar-height + $border-width);
+    width: calc(100% - calc($left-bar-width + $border-width));
+    height: calc(100% - calc($left-bar-width + $border-width));
 }

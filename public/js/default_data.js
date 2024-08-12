@@ -1,7 +1,7 @@
 import { Vector3 } from "./threejs/three.js"
 
 const default_user_data = {
-
+    ["simulations"]: []
 }
 
 export {default_user_data}

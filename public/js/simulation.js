@@ -4,8 +4,7 @@ import * as THREE from "./threejs/three.js"
 import ThreeJsHandler from "./ThreeJsHandler.js";
 import * as SimulationComponents from "./SimulationComponents.js"
 import { WorldObject } from "./SimulationObjectClasses.js";
-import DataLoader from "./DataLoader.js";
-import { default_simulation_data } from "./default_data.js";
+import { getDoc, db, setDoc, auth, doc } from "./firebase.js";
 
 import init, { 
     Universe, 
@@ -14,17 +13,21 @@ import init, {
 
 import ColorBand from "./ColorBand.js";
 
+const auto_save_time = 10*1000
 
-const sim_data_loader = new DataLoader("game_data:0.0", default_simulation_data)
+const simulation_id = window.location.hash.slice(1)
 
 let sim_data
 let selected_object
+
+let user
 
 let simulation_objects
 
 let universe
 let wasm
 let world_object
+let needs_data_update = false
 
 const color_range = [  // Temp
 	new THREE.Color(0x00ff00),
@@ -41,7 +44,22 @@ function data_update()
 {
 	// TODO: Make it acutally save
 	// DataLoader
+	needs_data_update = true
 }
+
+function auto_save()
+{
+	if (!needs_data_update) {return;}
+	console.log("autosave")
+	setDoc(doc(db, "simulations", simulation_id), sim_data)
+}
+
+function userUpdate(new_user)
+{
+    user = new_user
+}
+
+auth.onAuthStateChanged(userUpdate)
 
 // temp
 const COLOR_BAND_POINTS = 10
@@ -149,6 +167,7 @@ function remove_simulation_object(key)
 function update_properties()
 {
 	ui_loader.property_manager.update_data(sim_data.sim_objects[selected_object])
+	data_update()
 }
 
 let tool_mode = "select"
@@ -203,7 +222,7 @@ function key_down(e)
 		set_tool("select")
 }
 
-function start(current_wasm)
+async function start(current_wasm)
 {
 	wasm = current_wasm
 
@@ -228,7 +247,14 @@ function start(current_wasm)
 
 	document.onkeydown = key_down
 
-	sim_data = sim_data_loader.get_data()
+	const docSnap = await getDoc(doc(db, "simulations", simulation_id))
+	if (docSnap)
+		sim_data = docSnap.data()
+	else
+		console.warn("error, data failed to get somehow")
+
+	console.log("sim_data", sim_data)
+	console.log("simulation_id", simulation_id)
 
 	ui_loader.explorer.events.connect("list_button_press", (object) => {
 		object.select()
@@ -275,6 +301,8 @@ function start(current_wasm)
 	update_selected_object(null)
 
 	field_update()
+
+	setInterval(auto_save, auto_save_time)
 }
 
 // Startup
